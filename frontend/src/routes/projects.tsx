@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SectionHeader } from "@/components/terminal";
 import { ExternalLink, Github } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/projects")({
   head: () => ({
@@ -9,58 +10,21 @@ export const Route = createFileRoute("/projects")({
   component: Projects,
 });
 
-const projects = [
-  {
-    name: "ai-cms",
-    tagline: "AI-powered CMS with RAG-based content assistant",
-    desc:
-      "A NestJS + Postgres CMS with a retrieval-augmented assistant that helps editors draft, summarize, and cross-link content across knowledge bases.",
-    stack: ["NestJS", "Postgres", "pgvector", "React", "OpenAI"],
-    tags: ["AI", "RAG", "Full-stack"],
-  },
-  {
-    name: "devlog",
-    tagline: "Minimal, terminal-styled dev blog engine",
-    desc:
-      "A static blog generator with MDX, tag graphs, RSS, and a search index. Themed like a real terminal — because reading code should feel like reading code.",
-    stack: ["TypeScript", "Vite", "MDX"],
-    tags: ["OSS", "Tools"],
-  },
-  {
-    name: "flowmail",
-    tagline: "Transactional email service with observability",
-    desc:
-      "Self-hosted SMTP + webhook proxy with retry queues, per-tenant quotas, and a lightweight analytics dashboard.",
-    stack: ["Node.js", "Redis", "Postgres", "Grafana"],
-    tags: ["Backend", "DevOps"],
-  },
-  {
-    name: "agentkit",
-    tagline: "Composable agents SDK for internal automation",
-    desc:
-      "A small SDK for wiring together LLM tools, memory stores, and guardrails. Powers a couple of internal ops bots handling triage and reporting.",
-    stack: ["TypeScript", "LangChain", "SQLite"],
-    tags: ["AI", "OSS"],
-  },
-  {
-    name: "pulse",
-    tagline: "Real-time status board for microservices",
-    desc:
-      "Websocket-first uptime board with incident timelines, PagerDuty sync, and per-service SLOs.",
-    stack: ["Go", "React", "ClickHouse"],
-    tags: ["Backend", "Realtime"],
-  },
-  {
-    name: "portfolio",
-    tagline: "This site — terminal-themed portfolio + AI assistant",
-    desc:
-      "Built with TanStack Start and Tailwind v4. Includes a mocked AI assistant, admin dashboard, and a scanline-heavy dark theme.",
-    stack: ["TanStack Start", "Tailwind v4", "TypeScript"],
-    tags: ["Web", "Design"],
-  },
-];
+type Project = { id: string; name: string; stack: string; status: "live" | "draft" };
+
 
 function Projects() {
+  const { data, isLoading, error } = useQuery<Project[]>({
+    queryKey: ["projects"],
+    queryFn: async () => {
+      const res = await fetch("http://localhost:3000/projects");
+      if (!res.ok) throw new Error("Failed to fetch projects");
+      return res.json();
+    },
+  });
+
+  const projects = data?.filter((p) => p.status === "live") || [];
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-12 md:py-20">
       <SectionHeader
@@ -68,6 +32,9 @@ function Projects() {
         title="projects()"
         desc="A selection — code, notes, and things that shipped."
       />
+
+      {isLoading && <div className="text-terminal">Loading projects...</div>}
+      {error && <div className="text-destructive">Error loading projects.</div>}
 
       <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         {projects.map((p) => (
@@ -89,21 +56,17 @@ function Projects() {
                 </a>
               </div>
             </div>
-            <p className="mt-1 text-sm text-foreground">{p.tagline}</p>
-            <p className="mt-3 text-sm text-muted-foreground flex-1">{p.desc}</p>
+            <p className="mt-3 text-sm text-muted-foreground flex-1">
+              No description available.
+            </p>
             <div className="mt-4 flex flex-wrap gap-1.5">
-              {p.stack.map((s) => (
+              {p.stack.split(',').map((s) => s.trim()).filter(Boolean).map((s) => (
                 <span
                   key={s}
                   className="text-xs px-2 py-0.5 rounded bg-muted text-terminal border border-border"
                 >
                   {s}
                 </span>
-              ))}
-            </div>
-            <div className="mt-3 flex gap-1 text-[10px] text-accent">
-              {p.tags.map((t) => (
-                <span key={t}>#{t}</span>
               ))}
             </div>
           </article>

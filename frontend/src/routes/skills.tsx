@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SectionHeader } from "@/components/terminal";
+import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/skills")({
   head: () => ({
@@ -8,55 +9,8 @@ export const Route = createFileRoute("/skills")({
   component: Skills,
 });
 
-const groups = [
-  {
-    name: "languages",
-    items: [
-      { n: "TypeScript", l: 95 },
-      { n: "JavaScript", l: 95 },
-      { n: "Python", l: 85 },
-      { n: "Go", l: 60 },
-      { n: "SQL", l: 85 },
-    ],
-  },
-  {
-    name: "frontend",
-    items: [
-      { n: "React", l: 92 },
-      { n: "Next.js / TanStack", l: 88 },
-      { n: "Tailwind CSS", l: 90 },
-      { n: "Framer Motion", l: 70 },
-    ],
-  },
-  {
-    name: "backend",
-    items: [
-      { n: "Node.js", l: 92 },
-      { n: "NestJS", l: 85 },
-      { n: "FastAPI", l: 75 },
-      { n: "PostgreSQL", l: 85 },
-      { n: "Redis", l: 70 },
-    ],
-  },
-  {
-    name: "ai / ml",
-    items: [
-      { n: "LangChain", l: 80 },
-      { n: "RAG pipelines", l: 85 },
-      { n: "Vector DBs (pgvector, Pinecone)", l: 78 },
-      { n: "OpenAI / Gemini APIs", l: 88 },
-    ],
-  },
-  {
-    name: "devops",
-    items: [
-      { n: "Docker", l: 82 },
-      { n: "AWS / GCP", l: 72 },
-      { n: "GitHub Actions", l: 80 },
-      { n: "Linux", l: 85 },
-    ],
-  },
-];
+type Skill = { id: string; name: string; level: number; group: string };
+
 
 function Bar({ n, l }: { n: string; l: number }) {
   return (
@@ -76,6 +30,26 @@ function Bar({ n, l }: { n: string; l: number }) {
 }
 
 function Skills() {
+  const { data: skills = [], isLoading, error } = useQuery<Skill[]>({
+    queryKey: ["skills"],
+    queryFn: async () => {
+      const res = await fetch("http://localhost:3000/skills");
+      if (!res.ok) throw new Error("Failed to fetch skills");
+      return res.json();
+    },
+  });
+
+  const groupedSkills = skills.reduce((acc, skill) => {
+    if (!acc[skill.group]) acc[skill.group] = [];
+    acc[skill.group].push({ n: skill.name, l: skill.level });
+    return acc;
+  }, {} as Record<string, { n: string, l: number }[]>);
+
+  const groups = Object.keys(groupedSkills).map((name) => ({
+    name,
+    items: groupedSkills[name],
+  }));
+
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 md:py-20">
       <SectionHeader
@@ -83,6 +57,8 @@ function Skills() {
         title="skills()"
         desc="A rough map of what I reach for daily and what I keep sharp."
       />
+      {isLoading && <div className="text-terminal">Loading skills...</div>}
+      {error && <div className="text-destructive">Error loading skills.</div>}
       <div className="grid gap-6 md:grid-cols-2">
         {groups.map((g) => (
           <div key={g.name} className="terminal-border rounded-lg bg-card p-5">

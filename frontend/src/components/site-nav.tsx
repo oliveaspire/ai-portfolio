@@ -51,7 +51,7 @@ export function SiteNav() {
             to="/admin"
             className="ml-2 px-3 py-1 rounded border border-terminal/40 text-terminal hover:bg-terminal hover:text-primary-foreground transition-colors"
           >
-            [admin]
+            [login]
           </Link>
         </nav>
       </div>
@@ -70,11 +70,11 @@ export function SiteNav() {
             </Link>
           ))}
           <Link
-            to="/admin"
+            to="/login"
             onClick={() => setOpen(false)}
             className="px-2 py-2 rounded text-terminal border border-terminal/40"
           >
-            [admin]
+            [login]
           </Link>
         </nav>
       )}

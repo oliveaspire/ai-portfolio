@@ -1,5 +1,7 @@
-import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useRouterState, useNavigate } from "@tanstack/react-router";
 import { BarChart3, FileUp, FolderKanban, Home, LayoutDashboard, LogOut, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
+import { jwtDecode } from "jwt-decode";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -18,6 +20,40 @@ const nav = [
 
 function AdminLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const navigate = useNavigate();
+  const [userName, setUserName] = useState<string>("yash");
+  const [isAuth, setIsAuth] = useState<boolean>(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("admin_token");
+    if (!token) {
+      navigate({ to: "/login", replace: true });
+      return;
+    }
+
+    try {
+      const decoded: any = jwtDecode(token);
+      if (decoded && decoded.email) {
+        setUserName(decoded.email.split("@")[0]);
+        setIsAuth(true);
+      } else {
+        throw new Error("Invalid token payload");
+      }
+    } catch (e) {
+      localStorage.removeItem("admin_token");
+      navigate({ to: "/login", replace: true });
+    }
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("admin_token");
+    navigate({ to: "/", replace: true });
+  };
+
+  if (!isAuth) {
+    return null; // or a loading spinner
+  }
+
   return (
     <div className="min-h-screen flex bg-background">
       <aside className="w-60 shrink-0 border-r border-border bg-sidebar flex flex-col">
@@ -52,7 +88,10 @@ function AdminLayout() {
           >
             <Home className="w-4 h-4" /> back to site
           </Link>
-          <button className="w-full flex items-center gap-2 px-3 py-2 rounded text-sm text-muted-foreground hover:bg-sidebar-accent hover:text-destructive">
+          <button 
+            onClick={handleLogout}
+            className="w-full flex items-center gap-2 px-3 py-2 rounded text-sm text-muted-foreground hover:bg-sidebar-accent hover:text-destructive"
+          >
             <LogOut className="w-4 h-4" /> logout
           </button>
         </div>
@@ -66,7 +105,7 @@ function AdminLayout() {
           <div className="flex items-center gap-2 text-xs">
             <span className="w-2 h-2 rounded-full bg-terminal animate-pulse" />
             <span className="text-muted-foreground">signed in as</span>
-            <span className="text-terminal">yash</span>
+            <span className="text-terminal">{userName}</span>
           </div>
         </header>
         <main className="flex-1 p-6 overflow-y-auto">

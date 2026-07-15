@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SkillsRouteImport } from './routes/skills'
 import { Route as ProjectsRouteImport } from './routes/projects'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as ExperienceRouteImport } from './routes/experience'
 import { Route as EducationRouteImport } from './routes/education'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -19,6 +20,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as AdminSkillsRouteImport } from './routes/admin.skills'
 import { Route as AdminProjectsRouteImport } from './routes/admin.projects'
 import { Route as AdminDocumentsRouteImport } from './routes/admin.documents'
@@ -32,6 +34,11 @@ const SkillsRoute = SkillsRouteImport.update({
 const ProjectsRoute = ProjectsRouteImport.update({
   id: '/projects',
   path: '/projects',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExperienceRoute = ExperienceRouteImport.update({
@@ -74,6 +81,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminSkillsRoute = AdminSkillsRouteImport.update({
   id: '/skills',
   path: '/skills',
@@ -103,12 +115,14 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/education': typeof EducationRoute
   '/experience': typeof ExperienceRoute
+  '/login': typeof LoginRoute
   '/projects': typeof ProjectsRoute
   '/skills': typeof SkillsRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/documents': typeof AdminDocumentsRoute
   '/admin/projects': typeof AdminProjectsRoute
   '/admin/skills': typeof AdminSkillsRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRoutesByTo {
@@ -118,12 +132,14 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/education': typeof EducationRoute
   '/experience': typeof ExperienceRoute
+  '/login': typeof LoginRoute
   '/projects': typeof ProjectsRoute
   '/skills': typeof SkillsRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/documents': typeof AdminDocumentsRoute
   '/admin/projects': typeof AdminProjectsRoute
   '/admin/skills': typeof AdminSkillsRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/admin': typeof AdminIndexRoute
 }
 export interface FileRoutesById {
@@ -135,12 +151,14 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/education': typeof EducationRoute
   '/experience': typeof ExperienceRoute
+  '/login': typeof LoginRoute
   '/projects': typeof ProjectsRoute
   '/skills': typeof SkillsRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/documents': typeof AdminDocumentsRoute
   '/admin/projects': typeof AdminProjectsRoute
   '/admin/skills': typeof AdminSkillsRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRouteTypes {
@@ -153,12 +171,14 @@ export interface FileRouteTypes {
     | '/contact'
     | '/education'
     | '/experience'
+    | '/login'
     | '/projects'
     | '/skills'
     | '/admin/analytics'
     | '/admin/documents'
     | '/admin/projects'
     | '/admin/skills'
+    | '/auth/callback'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -168,12 +188,14 @@ export interface FileRouteTypes {
     | '/contact'
     | '/education'
     | '/experience'
+    | '/login'
     | '/projects'
     | '/skills'
     | '/admin/analytics'
     | '/admin/documents'
     | '/admin/projects'
     | '/admin/skills'
+    | '/auth/callback'
     | '/admin'
   id:
     | '__root__'
@@ -184,12 +206,14 @@ export interface FileRouteTypes {
     | '/contact'
     | '/education'
     | '/experience'
+    | '/login'
     | '/projects'
     | '/skills'
     | '/admin/analytics'
     | '/admin/documents'
     | '/admin/projects'
     | '/admin/skills'
+    | '/auth/callback'
     | '/admin/'
   fileRoutesById: FileRoutesById
 }
@@ -201,8 +225,10 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   EducationRoute: typeof EducationRoute
   ExperienceRoute: typeof ExperienceRoute
+  LoginRoute: typeof LoginRoute
   ProjectsRoute: typeof ProjectsRoute
   SkillsRoute: typeof SkillsRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -219,6 +245,13 @@ declare module '@tanstack/react-router' {
       path: '/projects'
       fullPath: '/projects'
       preLoaderRoute: typeof ProjectsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/experience': {
@@ -277,6 +310,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/skills': {
       id: '/admin/skills'
       path: '/skills'
@@ -334,8 +374,10 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   EducationRoute: EducationRoute,
   ExperienceRoute: ExperienceRoute,
+  LoginRoute: LoginRoute,
   ProjectsRoute: ProjectsRoute,
   SkillsRoute: SkillsRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

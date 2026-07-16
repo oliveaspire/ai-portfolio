@@ -1,38 +1,78 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FileText, Trash2, Upload } from "lucide-react";
 
 export const Route = createFileRoute("/admin/documents")({
   component: Documents,
 });
 
-type Doc = { id: string; name: string; size: string; indexed: boolean };
-
-const seed: Doc[] = [
-  { id: "1", name: "Resume.pdf", size: "412 KB", indexed: true },
-  { id: "2", name: "Projects.md", size: "18 KB", indexed: true },
-  { id: "3", name: "Skills.md", size: "6 KB", indexed: true },
-  { id: "4", name: "AI-Notes.md", size: "24 KB", indexed: true },
-];
+type Doc = { id: string; originalName: string; size: number; indexed: boolean };
 
 function Documents() {
-  const [docs, setDocs] = useState<Doc[]>(seed);
+  const [docs, setDocs] = useState<Doc[]>([]);
   const [drag, setDrag] = useState(false);
+  const [loading, setLoading] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  function handleFiles(files: FileList | null) {
-    if (!files) return;
-    const added: Doc[] = Array.from(files).map((f) => ({
-      id: crypto.randomUUID(),
-      name: f.name,
-      size: `${(f.size / 1024).toFixed(1)} KB`,
-      indexed: false,
-    }));
-    setDocs((d) => [...added, ...d]);
-    // fake indexing
-    setTimeout(() => {
-      setDocs((d) => d.map((x) => (added.find((a) => a.id === x.id) ? { ...x, indexed: true } : x)));
-    }, 1500);
+  const token = localStorage.getItem("admin_token");
+  const API_URL = "http://localhost:3000";
+
+  useEffect(() => {
+    fetchDocuments();
+  }, []);
+
+  async function fetchDocuments() {
+    try {
+      const res = await fetch(`${API_URL}/documents`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setDocs(data);
+      }
+    } catch (e) {
+      console.error("Failed to fetch documents", e);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleFiles(files: FileList | null) {
+    if (!files || files.length === 0) return;
+    
+    const formData = new FormData();
+    Array.from(files).forEach((file) => {
+      formData.append("files", file);
+    });
+
+    try {
+      const res = await fetch(`${API_URL}/documents/upload`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      if (res.ok) {
+        const uploaded = await res.json();
+        setDocs((prev) => [...uploaded, ...prev]);
+        if (inputRef.current) inputRef.current.value = "";
+      }
+    } catch (e) {
+      console.error("Failed to upload documents", e);
+    }
+  }
+
+  async function handleDelete(id: string) {
+    try {
+      const res = await fetch(`${API_URL}/documents/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        setDocs((prev) => prev.filter((d) => d.id !== id));
+      }
+    } catch (e) {
+      console.error("Failed to delete document", e);
+    }
   }
 
   return (
@@ -79,36 +119,43 @@ function Documents() {
         <div className="px-4 py-2 border-b border-border text-xs text-terminal-dim uppercase bg-background/50">
           ./documents ({docs.length})
         </div>
-        <ul>
-          {docs.map((d) => (
-            <li
-              key={d.id}
-              className="flex items-center gap-3 px-4 py-3 border-t border-border first:border-t-0 hover:bg-background/40"
-            >
-              <FileText className="w-4 h-4 text-terminal" />
-              <div className="flex-1">
-                <div className="text-sm">{d.name}</div>
-                <div className="text-[11px] text-muted-foreground">{d.size}</div>
-              </div>
-              <span
-                className={`text-[10px] px-2 py-0.5 rounded border ${
-                  d.indexed
-                    ? "border-terminal text-terminal"
-                    : "border-border text-muted-foreground animate-pulse"
-                }`}
+        {loading ? (
+          <div className="p-4 text-center text-sm text-muted-foreground animate-pulse">loading...</div>
+        ) : docs.length === 0 ? (
+          <div className="p-4 text-center text-sm text-muted-foreground">no documents found</div>
+        ) : (
+          <ul>
+            {docs.map((d) => (
+              <li
+                key={d.id}
+                className="flex items-center gap-3 px-4 py-3 border-t border-border first:border-t-0 hover:bg-background/40"
               >
-                {d.indexed ? "indexed" : "indexing..."}
-              </span>
-              <button
-                onClick={() => setDocs((all) => all.filter((x) => x.id !== d.id))}
-                className="text-muted-foreground hover:text-destructive p-1"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </li>
-          ))}
-        </ul>
+                <FileText className="w-4 h-4 text-terminal" />
+                <div className="flex-1">
+                  <div className="text-sm">{d.originalName}</div>
+                  <div className="text-[11px] text-muted-foreground">{(d.size / 1024).toFixed(1)} KB</div>
+                </div>
+                <span
+                  className={`text-[10px] px-2 py-0.5 rounded border ${
+                    d.indexed
+                      ? "border-terminal text-terminal"
+                      : "border-border text-muted-foreground animate-pulse"
+                  }`}
+                >
+                  {d.indexed ? "indexed" : "indexing..."}
+                </span>
+                <button
+                  onClick={() => handleDelete(d.id)}
+                  className="text-muted-foreground hover:text-destructive p-1 transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );
 }
+

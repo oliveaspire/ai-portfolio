@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiFetch } from "../utils/api";
 
 export const Route = createFileRoute("/admin/projects")({
   component: ManageProjects,
@@ -19,7 +20,7 @@ function ManageProjects() {
   const { data: rows = [], isLoading } = useQuery<Project[]>({
     queryKey: ["projects"],
     queryFn: async () => {
-      const res = await fetch("http://localhost:3000/projects");
+      const res = await apiFetch("/projects");
       if (!res.ok) throw new Error("Failed to fetch");
       return res.json();
     },
@@ -27,7 +28,7 @@ function ManageProjects() {
 
   const createMutation = useMutation({
     mutationFn: async (newProject: Omit<Project, "id">) => {
-      const res = await fetch("http://localhost:3000/projects", {
+      const res = await apiFetch("/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newProject),
@@ -45,7 +46,7 @@ function ManageProjects() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, ...data }: Partial<Project> & { id: string }) => {
-      const res = await fetch(`http://localhost:3000/projects/${id}`, {
+      const res = await apiFetch(`/projects/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -64,7 +65,7 @@ function ManageProjects() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`http://localhost:3000/projects/${id}`, {
+      const res = await apiFetch(`/projects/${id}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Failed to delete");

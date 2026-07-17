@@ -14,6 +14,24 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteNav, SiteFooter } from "../components/site-nav";
 
+// ── Global BFCache guard (module-level, never cleaned up by React) ──────────
+// When Chrome restores a page from the Back-Forward Cache (bfcache),
+// no JS re-executes except for `pageshow`. React's useEffect cleanup removes
+// component-level pageshow listeners BEFORE the page is stored in bfcache,
+// so they never fire on restore. This module-level listener is registered
+// exactly once and is immune to React's lifecycle — it always fires.
+if (typeof window !== "undefined") {
+  window.addEventListener("pageshow", (event: PageTransitionEvent) => {
+    if (event.persisted && window.location.pathname.startsWith("/admin")) {
+      const token = localStorage.getItem("admin_token");
+      if (!token) {
+        window.location.replace("/login");
+      }
+    }
+  });
+}
+// ───────────────────────────────────────────────────────────────────────────
+
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4 font-mono">

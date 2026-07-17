@@ -5,12 +5,8 @@ export const Route = createFileRoute("/admin/")({
   component: AdminHome,
 });
 
-const stats = [
-  { label: "Projects", value: 6, icon: FolderKanban, delta: "+1 this month" },
-  { label: "Documents", value: 12, icon: FileText, delta: "3.4 MB indexed" },
-  { label: "Skills", value: 24, icon: Sparkles, delta: "5 categories" },
-  { label: "AI queries", value: 148, icon: MessageSquare, delta: "+22% w/w" },
-];
+import { useQuery } from "@tanstack/react-query";
+import { apiFetch } from "../utils/api";
 
 const activity = [
   { t: "2m ago", msg: "AI query: 'What projects have you built?'", tag: "chat" },
@@ -20,6 +16,40 @@ const activity = [
 ];
 
 function AdminHome() {
+  const { data: projects = [] } = useQuery({
+    queryKey: ["projects"],
+    queryFn: async () => {
+      const res = await apiFetch("/projects");
+      if (!res.ok) return [];
+      return res.json();
+    },
+  });
+
+  const { data: documents = [] } = useQuery({
+    queryKey: ["documents"],
+    queryFn: async () => {
+      const res = await apiFetch("/documents");
+      if (!res.ok) return [];
+      return res.json();
+    },
+  });
+
+  const { data: skills = [] } = useQuery({
+    queryKey: ["skills"],
+    queryFn: async () => {
+      const res = await apiFetch("/skills");
+      if (!res.ok) return [];
+      return res.json();
+    },
+  });
+
+  const stats = [
+    { label: "Projects", value: projects.length, icon: FolderKanban, delta: "Manage your portfolio" },
+    { label: "Documents", value: documents.length, icon: FileText, delta: "Uploaded files" },
+    { label: "Skills", value: skills.length, icon: Sparkles, delta: "Tracked abilities" },
+    { label: "AI queries", value: 148, icon: MessageSquare, delta: "Mock data" },
+  ];
+
   return (
     <div className="space-y-8 max-w-6xl">
       <div>

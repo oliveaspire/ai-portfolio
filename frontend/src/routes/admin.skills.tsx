@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiFetch } from "../utils/api";
 
 export const Route = createFileRoute("/admin/skills")({
   component: ManageSkills,
@@ -18,7 +19,7 @@ function ManageSkills() {
   const { data: skills = [], isLoading } = useQuery<Skill[]>({
     queryKey: ["skills"],
     queryFn: async () => {
-      const res = await fetch("http://localhost:3000/skills");
+      const res = await apiFetch("/skills");
       if (!res.ok) throw new Error("Failed to fetch");
       return res.json();
     },
@@ -26,7 +27,7 @@ function ManageSkills() {
 
   const createMutation = useMutation({
     mutationFn: async (newSkill: Omit<Skill, "id">) => {
-      const res = await fetch("http://localhost:3000/skills", {
+      const res = await apiFetch("/skills", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newSkill),
@@ -44,7 +45,7 @@ function ManageSkills() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`http://localhost:3000/skills/${id}`, {
+      const res = await apiFetch(`/skills/${id}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Failed to delete");

@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const links = [
   { to: "/", label: "~/home" },
@@ -15,6 +15,12 @@ const links = [
 export function SiteNav() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [open, setOpen] = useState(false);
+  const [hasToken, setHasToken] = useState(false);
+
+  useEffect(() => {
+    setHasToken(!!localStorage.getItem("admin_token"));
+  }, []);
+
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
@@ -51,7 +57,7 @@ export function SiteNav() {
             to="/admin"
             className="ml-2 px-3 py-1 rounded border border-terminal/40 text-terminal hover:bg-terminal hover:text-primary-foreground transition-colors"
           >
-            [login]
+            {hasToken ? "[admin]" : "[login]"}
           </Link>
         </nav>
       </div>
@@ -70,11 +76,11 @@ export function SiteNav() {
             </Link>
           ))}
           <Link
-            to="/login"
+            to="/admin"
             onClick={() => setOpen(false)}
             className="px-2 py-2 rounded text-terminal border border-terminal/40"
           >
-            [login]
+            {hasToken ? "[admin]" : "[login]"}
           </Link>
         </nav>
       )}

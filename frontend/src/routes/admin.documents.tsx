@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { FileText, Trash2, Upload } from "lucide-react";
+import { apiFetch } from "../utils/api";
 
 export const Route = createFileRoute("/admin/documents")({
   component: Documents,
@@ -15,7 +16,7 @@ function Documents() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const token = localStorage.getItem("admin_token");
-  const API_URL = "http://localhost:3000";
+  const API_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
 
   useEffect(() => {
     fetchDocuments();
@@ -23,9 +24,7 @@ function Documents() {
 
   async function fetchDocuments() {
     try {
-      const res = await fetch(`${API_URL}/documents`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiFetch(`/documents`);
       if (res.ok) {
         const data = await res.json();
         setDocs(data);
@@ -46,9 +45,8 @@ function Documents() {
     });
 
     try {
-      const res = await fetch(`${API_URL}/documents/upload`, {
+      const res = await apiFetch(`/documents/upload`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
       if (res.ok) {
@@ -63,9 +61,8 @@ function Documents() {
 
   async function handleDelete(id: string) {
     try {
-      const res = await fetch(`${API_URL}/documents/${id}`, {
+      const res = await apiFetch(`/documents/${id}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
         setDocs((prev) => prev.filter((d) => d.id !== id));

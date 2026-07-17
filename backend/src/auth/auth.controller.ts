@@ -1,4 +1,4 @@
-import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Req, Res, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
@@ -20,8 +20,22 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
-    const token = this.authService.generateJwt(req.user);
+    const tokens = await this.authService.generateJwt(req.user);
     const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
-    return res.redirect(`${frontendUrl}/auth/callback?token=${token.access_token}`);
+    return res.redirect(`${frontendUrl}/auth/callback?token=${tokens.access_token}&refreshToken=${tokens.refresh_token}`);
+  }
+
+  @Post('refresh')
+  async refresh(@Body('refresh_token') refreshToken: string) {
+    return this.authService.refreshToken(refreshToken);
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  async logout(@Body('refresh_token') refreshToken: string) {
+    if (refreshToken) {
+      await this.authService.logout(refreshToken);
+    }
+    return { message: 'Logged out successfully' };
   }
 }

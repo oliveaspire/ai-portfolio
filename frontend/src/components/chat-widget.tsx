@@ -1,0 +1,152 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { MessageCircle, X, Send, Bot, Loader2 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+
+interface Message {
+  id: string;
+  text: string;
+  sender: 'user' | 'bot';
+}
+
+export function ChatWidget() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([
+    { id: '1', text: "Hi! I'm the AI assistant for this portfolio. Ask me anything!", sender: 'bot' }
+  ]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const handleSend = async () => {
+    if (!input.trim()) return;
+
+    const userMessage: Message = { id: Date.now().toString(), text: input, sender: 'user' };
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:3000/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: userMessage.text }),
+      });
+      
+      const data = await response.json();
+      
+      setMessages(prev => [...prev, {
+        id: (Date.now() + 1).toString(),
+        text: data.response || "Sorry, I couldn't understand that.",
+        sender: 'bot'
+      }]);
+    } catch (error) {
+      setMessages(prev => [...prev, {
+        id: (Date.now() + 1).toString(),
+        text: "Sorry, I'm having trouble connecting to the server.",
+        sender: 'bot'
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+      {isOpen && (
+        <div className="mb-4 flex h-[500px] w-[350px] flex-col overflow-hidden rounded-2xl border border-white/10 bg-black/90 shadow-2xl backdrop-blur-xl sm:w-[400px]">
+          {/* Header */}
+          <div className="flex items-center justify-between border-b border-white/10 bg-white/5 p-4">
+            <div className="flex items-center gap-2">
+              <Bot className="h-5 w-5 text-indigo-400" />
+              <h3 className="font-semibold text-white">AI Assistant</h3>
+            </div>
+            <button 
+              onClick={() => setIsOpen(false)}
+              className="rounded-full p-1 text-gray-400 hover:bg-white/10 hover:text-white transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {messages.map((msg) => (
+              <div 
+                key={msg.id} 
+                className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                <div 
+                  className={`max-w-[85%] rounded-2xl px-4 py-2 text-sm ${
+                    msg.sender === 'user' 
+                      ? 'bg-indigo-600 text-white rounded-tr-sm' 
+                      : 'bg-white/10 text-gray-200 rounded-tl-sm'
+                  }`}
+                >
+                  {msg.sender === 'user' ? (
+                    msg.text
+                  ) : (
+                    <div className="space-y-2 [&>p]:leading-relaxed [&>ul]:list-disc [&>ul]:pl-4 [&>ol]:list-decimal [&>ol]:pl-4 [&_strong]:font-semibold [&_strong]:text-indigo-300">
+                      <ReactMarkdown>
+                        {msg.text}
+                      </ReactMarkdown>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className="bg-white/10 text-gray-200 rounded-2xl rounded-tl-sm px-4 py-3 flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin text-indigo-400" />
+                  <span className="text-sm">Thinking...</span>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Input */}
+          <div className="border-t border-white/10 bg-white/5 p-4">
+            <form 
+              onSubmit={(e) => { e.preventDefault(); handleSend(); }}
+              className="flex items-center gap-2"
+            >
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Ask me anything..."
+                className="flex-1 rounded-full border border-white/10 bg-black/50 px-4 py-2 text-sm text-white placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              />
+              <button 
+                type="submit"
+                disabled={isLoading || !input.trim()}
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 disabled:hover:bg-indigo-600 transition-colors"
+              >
+                <Send className="h-4 w-4" />
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Toggle Button */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex h-14 w-14 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 hover:scale-105 active:scale-95 transition-all"
+      >
+        {isOpen ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
+      </button>
+    </div>
+  );
+}

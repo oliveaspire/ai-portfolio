@@ -6,15 +6,18 @@ import { ProjectsModule } from './projects/projects.module';
 import { SkillsModule } from './skills/skills.module';
 import { AuthModule } from './auth/auth.module';
 import { DocumentsModule } from './documents/documents.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    ProjectsModule,
-    SkillsModule,
-    AuthModule,
-    DocumentsModule
-  ],
+  imports:
+    [
+      ConfigModule.forRoot({ isGlobal: true }),
+      ProjectsModule,
+      SkillsModule,
+      AuthModule,
+      DocumentsModule,
+      ChatModule
+    ],
   controllers: [AppController],
   providers: [AppService],
 })

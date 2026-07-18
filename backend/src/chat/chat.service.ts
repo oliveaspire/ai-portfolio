@@ -13,7 +13,7 @@ export class ChatService {
       apiKey: process.env.GEMINI_API_KEY
     });
     const chatModel = new ChatGoogleGenerativeAI({
-      model: 'gemini-3.5-flash',
+      model: 'gemini-3.1-flash-lite',
       temperature: 0.2,
       apiKey: process.env.GEMINI_API_KEY
     });
@@ -38,7 +38,7 @@ export class ChatService {
     const prompt = PromptTemplate.fromTemplate(`
 You are a helpful AI assistant representing the owner of this portfolio.
 You have been provided with some context documents uploaded by the user. Use them to help answer the question if they are relevant.
-If the provided context does not contain the answer or isn't relevant, you should still answer the question using your general knowledge as a normal AI assistant.
+If the provided context does not contain the answer or isn't relevant, you should still answer the question using your general knowledge as a normal AI assistant. 
 
 Context:
 {context}

@@ -34,21 +34,84 @@ export function ChatWidget() {
     setIsLoading(true);
 
     try {
+      // Build history from existing messages
+      const history = messages.map(m => ({
+        role: m.sender === 'bot' ? 'assistant' : 'user',
+        content: m.text
+      }));
+
       const response = await fetch('http://localhost:3000/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message: userMessage.text }),
+        body: JSON.stringify({ message: userMessage.text, history }),
       });
       
-      const data = await response.json();
+      if (!response.ok) throw new Error('Network response was not ok');
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
       
-      setMessages(prev => [...prev, {
-        id: (Date.now() + 1).toString(),
-        text: data.response || "Sorry, I couldn't understand that.",
-        sender: 'bot'
-      }]);
+      const botMessageId = (Date.now() + 1).toString();
+      setMessages(prev => [...prev, { id: botMessageId, text: '', sender: 'bot' }]);
+      setIsLoading(false); // Turn off loading spinner since we are streaming
+
+      if (reader) {
+        let fullText = '';
+        let displayedLength = 0;
+        
+        // Start a smooth typewriter effect queue
+        const typingInterval = setInterval(() => {
+          if (displayedLength < fullText.length) {
+            displayedLength++; // Reveal 1 character at a time
+            const currentText = fullText.slice(0, displayedLength);
+            
+            setMessages(prev => prev.map(m => 
+              m.id === botMessageId ? { ...m, text: currentText } : m
+            ));
+          }
+        }, 15); // 15ms per character creates a fast but readable typing effect
+
+        let buffer = '';
+        
+        while (true) {
+          const { done, value } = await reader.read();
+          
+          if (done) {
+            // Wait until the typewriter effect has caught up to the end of the text
+            const checkDone = setInterval(() => {
+              if (displayedLength >= fullText.length) {
+                clearInterval(typingInterval);
+                clearInterval(checkDone);
+              }
+            }, 50);
+            break;
+          }
+          
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || ''; 
+          
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const dataStr = line.slice(6);
+              if (dataStr === '[DONE]') break;
+              
+              try {
+                const data = JSON.parse(dataStr);
+                if (data.error) {
+                  fullText += `\n\nError: ${data.error}`;
+                } else if (data.text) {
+                  fullText += data.text;
+                }
+              } catch (e) {
+                // Ignore parse errors from partial chunks if any
+              }
+            }
+          }
+        }
+      }
     } catch (error) {
       setMessages(prev => [...prev, {
         id: (Date.now() + 1).toString(),

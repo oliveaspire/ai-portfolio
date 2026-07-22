@@ -13,6 +13,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteNav, SiteFooter } from "../components/site-nav";
+import { ChatWidget } from "../components/chat-widget";
 
 // ── Global BFCache guard (module-level, never cleaned up by React) ──────────
 // When Chrome restores a page from the Back-Forward Cache (bfcache),
@@ -144,6 +145,7 @@ function RootComponent() {
           <main className="flex-1">
             <Outlet />
           </main>
+          <ChatWidget />
           <SiteFooter />
         </div>
       )}

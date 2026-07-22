@@ -26,6 +26,14 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     return this.client.refreshToken;
   }
 
+  get $queryRaw() {
+    return this.client.$queryRaw.bind(this.client);
+  }
+
+  get $executeRaw() {
+    return this.client.$executeRaw.bind(this.client);
+  }
+
   constructor() {
     const connectionString = process.env.DATABASE_URL!;
     const { Pool } = require('pg');

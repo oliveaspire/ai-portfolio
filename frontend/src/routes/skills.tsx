@@ -33,7 +33,8 @@ function Skills() {
   const { data: skills = [], isLoading, error } = useQuery<Skill[]>({
     queryKey: ["skills"],
     queryFn: async () => {
-      const res = await fetch("http://localhost:3000/skills");
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+      const res = await fetch(`${backendUrl}/skills`);
       if (!res.ok) throw new Error("Failed to fetch skills");
       return res.json();
     },

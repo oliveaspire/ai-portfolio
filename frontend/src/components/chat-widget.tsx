@@ -40,7 +40,8 @@ export function ChatWidget() {
         content: m.text
       }));
 
-      const response = await fetch('http://localhost:3000/chat', {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+      const response = await fetch(`${backendUrl}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

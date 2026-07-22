@@ -17,7 +17,8 @@ function Projects() {
   const { data, isLoading, error } = useQuery<Project[]>({
     queryKey: ["projects"],
     queryFn: async () => {
-      const res = await fetch("http://localhost:3000/projects");
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+      const res = await fetch(`${backendUrl}/projects`);
       if (!res.ok) throw new Error("Failed to fetch projects");
       return res.json();
     },

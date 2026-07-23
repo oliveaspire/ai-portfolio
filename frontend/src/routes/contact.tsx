@@ -12,7 +12,29 @@ export const Route = createFileRoute("/contact")({
 
 function Contact() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
-  const [sent, setSent] = useState(false);
+  const [status, setStatus] = useState<"idle" | "loading" | "sent" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus("loading");
+    try {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+      const res = await fetch(`${backendUrl}/contact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form)
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to send message");
+      }
+      setStatus("sent");
+    } catch (err: any) {
+      setErrorMsg(err.message);
+      setStatus("error");
+    }
+  };
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 md:py-20">
@@ -53,10 +75,7 @@ function Contact() {
         </div>
 
         <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            setSent(true);
-          }}
+          onSubmit={handleSubmit}
           className="terminal-border rounded-lg bg-card p-5 space-y-4"
         >
           <div className="text-terminal text-sm">
@@ -96,13 +115,19 @@ function Contact() {
           </div>
           <button
             type="submit"
-            className="rounded border border-terminal bg-terminal text-primary-foreground px-4 py-2 text-sm font-semibold hover:bg-terminal-glow transition-colors"
+            disabled={status === "loading" || status === "sent"}
+            className="rounded border border-terminal bg-terminal text-primary-foreground px-4 py-2 text-sm font-semibold hover:bg-terminal-glow transition-colors disabled:opacity-50"
           >
-            :wq — send
+            {status === "loading" ? "sending..." : ":wq — send"}
           </button>
-          {sent && (
+          {status === "sent" && (
             <div className="text-terminal text-sm">
-              ✓ message queued — I'll get back to you soon.
+              ✓ message sent — I'll get back to you soon.
+            </div>
+          )}
+          {status === "error" && (
+            <div className="text-red-400 text-sm">
+              ✗ Error: {errorMsg}
             </div>
           )}
         </form>

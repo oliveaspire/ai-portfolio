@@ -8,12 +8,7 @@ export const Route = createFileRoute("/admin/")({
 import { useQuery } from "@tanstack/react-query";
 import { apiFetch } from "../utils/api";
 
-const activity = [
-  { t: "2m ago", msg: "AI query: 'What projects have you built?'", tag: "chat" },
-  { t: "1h ago", msg: "Uploaded Resume_v3.pdf (indexed 12 chunks)", tag: "docs" },
-  { t: "yesterday", msg: "Added project: pulse", tag: "projects" },
-  { t: "2 days ago", msg: "Updated skill: NestJS 80% → 85%", tag: "skills" },
-];
+
 
 function AdminHome() {
   const { data: projects = [] } = useQuery({
@@ -98,24 +93,6 @@ function AdminHome() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="terminal-border rounded-lg bg-card p-5">
-          <div className="flex items-center gap-2 mb-4">
-            <Activity className="w-4 h-4 text-terminal" />
-            <h2 className="font-semibold text-terminal">Recent activity</h2>
-          </div>
-          <ul className="space-y-2 text-sm">
-            {activity.map((a, i) => (
-              <li key={i} className="flex items-start gap-3 py-1">
-                <span className="text-terminal-dim text-xs w-24 shrink-0">{a.t}</span>
-                <span className="flex-1">{a.msg}</span>
-                <span className="text-[10px] px-2 py-0.5 rounded bg-muted text-terminal border border-border">
-                  #{a.tag}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="terminal-border rounded-lg bg-card p-5">
           <div className="text-sm text-terminal mb-3">top pages</div>
           <ul className="space-y-2 text-sm">
             {(analytics.pages || []).map((p: { path: string; views: number; uniqueVisitors: number }) => (
@@ -136,25 +113,25 @@ function AdminHome() {
             )}
           </ul>
         </div>
-      </div>
 
-      <div className="terminal-border rounded-lg bg-card p-5">
-        <div className="text-sm text-terminal mb-3">top AI queries</div>
-        <ul className="space-y-2 text-sm">
-          {(aiData.topQueries || []).map((q: { question: string, timesAsked: number, rating: number }) => (
-            <li key={q.question} className="flex items-start gap-3">
-              <span className="text-terminal-dim">?</span>
-              <span className="flex-1">{q.question}</span>
-              <span className="text-muted-foreground text-xs">{q.timesAsked} asked</span>
-              <span className={`text-xs ${q.rating > 0 ? "text-green-400" : q.rating < 0 ? "text-red-400" : "text-terminal"}`}>
-                {q.rating > 0 ? `+${q.rating}` : q.rating} rating
-              </span>
-            </li>
-          ))}
-          {!aiData.topQueries?.length && (
-            <li className="text-muted-foreground text-sm">No AI queries recorded yet.</li>
-          )}
-        </ul>
+        <div className="terminal-border rounded-lg bg-card p-5">
+          <div className="text-sm text-terminal mb-3">top AI queries</div>
+          <ul className="space-y-2 text-sm">
+            {(aiData.topQueries || []).map((q: { question: string, timesAsked: number, rating: number }) => (
+              <li key={q.question} className="flex items-start gap-3">
+                <span className="text-terminal-dim">?</span>
+                <span className="flex-1">{q.question}</span>
+                <span className="text-muted-foreground text-xs">{q.timesAsked} asked</span>
+                <span className={`text-xs ${q.rating > 0 ? "text-green-400" : q.rating < 0 ? "text-red-400" : "text-terminal"}`}>
+                  {q.rating > 0 ? `+${q.rating}` : q.rating} rating
+                </span>
+              </li>
+            ))}
+            {!aiData.topQueries?.length && (
+              <li className="text-muted-foreground text-sm">No AI queries recorded yet.</li>
+            )}
+          </ul>
+        </div>
       </div>
     </div>
   );

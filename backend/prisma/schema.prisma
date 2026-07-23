@@ -71,3 +71,17 @@ model DocumentChunk {
   embedding  Unsupported("vector(3072)")?
   createdAt  DateTime                     @default(now())
 }
+
+model PageVisit {
+  id        String   @id @default(uuid())
+  path      String
+  sessionId String
+  createdAt DateTime @default(now())
+}
+
+model AiQuery {
+  id        String   @id @default(uuid())
+  question  String
+  rating    Int      @default(0) // +1 for like, -1 for dislike
+  createdAt DateTime @default(now())
+}

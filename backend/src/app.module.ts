@@ -7,6 +7,7 @@ import { SkillsModule } from './skills/skills.module';
 import { AuthModule } from './auth/auth.module';
 import { DocumentsModule } from './documents/documents.module';
 import { ChatModule } from './chat/chat.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
   imports:
@@ -16,7 +17,8 @@ import { ChatModule } from './chat/chat.module';
       SkillsModule,
       AuthModule,
       DocumentsModule,
-      ChatModule
+      ChatModule,
+      AnalyticsModule
     ],
   controllers: [AppController],
   providers: [AppService],

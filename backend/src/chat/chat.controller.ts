@@ -1,10 +1,14 @@
-import { Controller, Post, Body, Res } from '@nestjs/common';
+import { Controller, Post, Body, Res, Param } from '@nestjs/common';
 import { Response } from 'express';
 import { ChatService } from './chat.service';
+import { PrismaService } from '../prisma.service';
 
 @Controller('chat')
 export class ChatController {
-  constructor(private readonly chatService: ChatService) {}
+  constructor(
+    private readonly chatService: ChatService,
+    private readonly prisma: PrismaService
+  ) {}
 
   @Post()
   async chat(
@@ -15,6 +19,14 @@ export class ChatController {
       res.setHeader('Content-Type', 'text/event-stream');
       res.setHeader('Cache-Control', 'no-cache');
       res.setHeader('Connection', 'keep-alive');
+
+      // Save the user's question to the database
+      const queryRecord = await this.prisma.aiQuery.create({
+        data: { question: body.message },
+      });
+
+      // Send the query ID to the frontend first so it knows what to rate
+      res.write(`data: ${JSON.stringify({ queryId: queryRecord.id })}\n\n`);
 
       const stream = this.chatService.handleChatStream(body.message, body.history);
       
@@ -29,5 +41,17 @@ export class ChatController {
       res.write(`data: ${JSON.stringify({ error: e.message })}\n\n`);
       res.end();
     }
+  }
+
+  @Post(':id/rate')
+  async rateQuery(
+    @Param('id') id: string,
+    @Body() body: { rating: number }
+  ) {
+    const updated = await this.prisma.aiQuery.update({
+      where: { id },
+      data: { rating: body.rating },
+    });
+    return { success: true, rating: updated.rating };
   }
 }

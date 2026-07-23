@@ -1,11 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Bot, Loader2 } from 'lucide-react';
+import { MessageCircle, X, Send, Bot, Loader2, ThumbsUp, ThumbsDown } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
 interface Message {
   id: string;
   text: string;
   sender: 'user' | 'bot';
+  queryId?: string;
+  ratingStatus?: 'up' | 'down';
+  isComplete?: boolean;
 }
 
 export function ChatWidget() {
@@ -24,6 +27,25 @@ export function ChatWidget() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  const handleRate = async (messageId: string, queryId: string, rating: number) => {
+    setMessages(prev => prev.map(m => 
+      m.id === messageId ? { ...m, ratingStatus: rating > 0 ? 'up' : 'down' } : m
+    ));
+
+    try {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+      await fetch(`${backendUrl}/chat/${queryId}/rate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ rating }),
+      });
+    } catch (e) {
+      console.error('Failed to rate query:', e);
+    }
+  };
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -55,7 +77,7 @@ export function ChatWidget() {
       const decoder = new TextDecoder();
       
       const botMessageId = (Date.now() + 1).toString();
-      setMessages(prev => [...prev, { id: botMessageId, text: '', sender: 'bot' }]);
+      setMessages(prev => [...prev, { id: botMessageId, text: '', sender: 'bot', isComplete: false }]);
       setIsLoading(false); // Turn off loading spinner since we are streaming
 
       if (reader) {
@@ -85,6 +107,9 @@ export function ChatWidget() {
               if (displayedLength >= fullText.length) {
                 clearInterval(typingInterval);
                 clearInterval(checkDone);
+                setMessages(prev => prev.map(m => 
+                  m.id === botMessageId ? { ...m, isComplete: true } : m
+                ));
               }
             }, 50);
             break;
@@ -103,6 +128,10 @@ export function ChatWidget() {
                 const data = JSON.parse(dataStr);
                 if (data.error) {
                   fullText += `\n\nError: ${data.error}`;
+                } else if (data.queryId) {
+                  setMessages(prev => prev.map(m => 
+                    m.id === botMessageId ? { ...m, queryId: data.queryId } : m
+                  ));
                 } else if (data.text) {
                   fullText += data.text;
                 }
@@ -163,6 +192,26 @@ export function ChatWidget() {
                       <ReactMarkdown>
                         {msg.text}
                       </ReactMarkdown>
+                      {msg.queryId && msg.isComplete && (
+                        <div className="flex gap-2 mt-2 pt-2 border-t border-white/10">
+                          <button 
+                            onClick={() => handleRate(msg.id, msg.queryId!, 1)}
+                            className={`p-1 rounded hover:bg-white/10 transition-colors ${msg.ratingStatus === 'up' ? 'text-green-400' : 'text-gray-400'}`}
+                            disabled={!!msg.ratingStatus}
+                            title="Helpful"
+                          >
+                            <ThumbsUp className="w-4 h-4" />
+                          </button>
+                          <button 
+                            onClick={() => handleRate(msg.id, msg.queryId!, -1)}
+                            className={`p-1 rounded hover:bg-white/10 transition-colors ${msg.ratingStatus === 'down' ? 'text-red-400' : 'text-gray-400'}`}
+                            disabled={!!msg.ratingStatus}
+                            title="Not helpful"
+                          >
+                            <ThumbsDown className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

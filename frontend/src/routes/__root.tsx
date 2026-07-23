@@ -135,6 +135,23 @@ function RootComponent() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isAdmin = pathname.startsWith("/admin");
 
+  useEffect(() => {
+    if (isAdmin) return;
+    
+    let sessionId = localStorage.getItem("analytics_session_id");
+    if (!sessionId) {
+      sessionId = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15);
+      localStorage.setItem("analytics_session_id", sessionId);
+    }
+
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+    fetch(`${backendUrl}/analytics/track`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ path: pathname, sessionId }),
+    }).catch(console.error);
+  }, [pathname, isAdmin]);
+
   return (
     <QueryClientProvider client={queryClient}>
       {isAdmin ? (

@@ -24,7 +24,6 @@ import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as AdminSkillsRouteImport } from './routes/admin.skills'
 import { Route as AdminProjectsRouteImport } from './routes/admin.projects'
 import { Route as AdminDocumentsRouteImport } from './routes/admin.documents'
-import { Route as AdminAnalyticsRouteImport } from './routes/admin.analytics'
 
 const SkillsRoute = SkillsRouteImport.update({
   id: '/skills',
@@ -101,11 +100,6 @@ const AdminDocumentsRoute = AdminDocumentsRouteImport.update({
   path: '/documents',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminAnalyticsRoute = AdminAnalyticsRouteImport.update({
-  id: '/analytics',
-  path: '/analytics',
-  getParentRoute: () => AdminRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -118,7 +112,6 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/projects': typeof ProjectsRoute
   '/skills': typeof SkillsRoute
-  '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/documents': typeof AdminDocumentsRoute
   '/admin/projects': typeof AdminProjectsRoute
   '/admin/skills': typeof AdminSkillsRoute
@@ -135,7 +128,6 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/projects': typeof ProjectsRoute
   '/skills': typeof SkillsRoute
-  '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/documents': typeof AdminDocumentsRoute
   '/admin/projects': typeof AdminProjectsRoute
   '/admin/skills': typeof AdminSkillsRoute
@@ -154,7 +146,6 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/projects': typeof ProjectsRoute
   '/skills': typeof SkillsRoute
-  '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/documents': typeof AdminDocumentsRoute
   '/admin/projects': typeof AdminProjectsRoute
   '/admin/skills': typeof AdminSkillsRoute
@@ -174,7 +165,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/projects'
     | '/skills'
-    | '/admin/analytics'
     | '/admin/documents'
     | '/admin/projects'
     | '/admin/skills'
@@ -191,7 +181,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/projects'
     | '/skills'
-    | '/admin/analytics'
     | '/admin/documents'
     | '/admin/projects'
     | '/admin/skills'
@@ -209,7 +198,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/projects'
     | '/skills'
-    | '/admin/analytics'
     | '/admin/documents'
     | '/admin/projects'
     | '/admin/skills'
@@ -338,18 +326,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDocumentsRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/analytics': {
-      id: '/admin/analytics'
-      path: '/analytics'
-      fullPath: '/admin/analytics'
-      preLoaderRoute: typeof AdminAnalyticsRouteImport
-      parentRoute: typeof AdminRoute
-    }
   }
 }
 
 interface AdminRouteChildren {
-  AdminAnalyticsRoute: typeof AdminAnalyticsRoute
   AdminDocumentsRoute: typeof AdminDocumentsRoute
   AdminProjectsRoute: typeof AdminProjectsRoute
   AdminSkillsRoute: typeof AdminSkillsRoute
@@ -357,7 +337,6 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
-  AdminAnalyticsRoute: AdminAnalyticsRoute,
   AdminDocumentsRoute: AdminDocumentsRoute,
   AdminProjectsRoute: AdminProjectsRoute,
   AdminSkillsRoute: AdminSkillsRoute,

@@ -42,7 +42,6 @@ const nav = [
   { to: "/admin/projects", label: "Manage Projects", icon: FolderKanban },
   { to: "/admin/documents", label: "Upload Documents", icon: FileUp },
   { to: "/admin/skills", label: "Manage Skills", icon: Sparkles },
-  { to: "/admin/analytics", label: "Analytics", icon: BarChart3 },
 ] as const;
 
 function AdminLayout() {

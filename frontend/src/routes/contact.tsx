@@ -34,6 +34,10 @@ function Contact() {
         throw new Error(data.error || "Failed to send message");
       }
       setStatus("sent");
+      setForm({ name: "", email: "", message: "" });
+      setTimeout(() => {
+        setStatus((prev) => (prev === "sent" ? "idle" : prev));
+      }, 5000);
     } catch (err: unknown) {
       if (err instanceof Error) {
         setErrorMsg(err.message);
@@ -47,7 +51,7 @@ function Contact() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 md:py-20">
       <SectionHeader
-        cmd="mail -s 'let\\'s talk' yash@example.com"
+        cmd="mail -s 'let\'s talk' yashtripathi2993@gmail.com"
         title="contact()"
         desc="Best way to reach me. I reply within a day or two."
       />
@@ -59,31 +63,24 @@ function Contact() {
               <Prompt>cat contact.info</Prompt>
               <div className="pl-4 space-y-2 text-sm">
                 <a
-                  href="mailto:yash@example.com"
+                  href="mailto:yashtripathi2993@gmail.com"
                   className="flex items-center gap-2 hover:text-terminal"
                 >
-                  <Mail className="w-4 h-4 text-terminal" /> yash@example.com
+                  <Mail className="w-4 h-4 text-terminal" /> yashtripathi2993@gmail.com
                 </a>
                 <a
-                  href="https://github.com"
+                  href="https://github.com/oliveaspire"
                   className="flex items-center gap-2 hover:text-terminal"
                 >
-                  <Github className="w-4 h-4 text-terminal" /> github.com/yashtripathi
+                  <Github className="w-4 h-4 text-terminal" /> github.com/oliveaspire
                 </a>
-                <a
-                  href="https://linkedin.com"
-                  className="flex items-center gap-2 hover:text-terminal"
-                >
-                  <Linkedin className="w-4 h-4 text-terminal" /> linkedin.com/in/yashtripathi
-                </a>
-                <a href="https://x.com" className="flex items-center gap-2 hover:text-terminal">
-                  <Twitter className="w-4 h-4 text-terminal" /> @yashtripathi
-                </a>
+
+
               </div>
               <Prompt>
                 <span className="text-accent">availability</span>
               </Prompt>
-              <div className="pl-4 text-terminal">● open to full-time & freelance</div>
+              <div className="pl-4 text-terminal">● open to full-time opportunities</div>
               <Prompt>
                 <span className="caret" />
               </Prompt>
@@ -104,7 +101,7 @@ function Contact() {
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               className="mt-1 w-full bg-input border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-terminal"
-              placeholder="ada lovelace"
+              placeholder=""
               required
             />
           </div>
@@ -118,7 +115,7 @@ function Contact() {
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
               className="mt-1 w-full bg-input border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-terminal"
-              placeholder="ada@analytical.engine"
+              placeholder=""
               required
             />
           </div>
@@ -132,14 +129,14 @@ function Contact() {
               onChange={(e) => setForm({ ...form, message: e.target.value })}
               rows={6}
               className="mt-1 w-full bg-input border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-terminal resize-none"
-              placeholder="tell me about the problem you're solving..."
+              placeholder=""
               required
             />
           </div>
           <button
             type="submit"
-            disabled={status === "loading" || status === "sent"}
-            aria-disabled={status === "loading" || status === "sent"}
+            disabled={status === "loading"}
+            aria-disabled={status === "loading"}
             className="rounded border border-terminal bg-terminal text-primary-foreground px-4 py-2 text-sm font-semibold hover:bg-terminal-glow transition-colors disabled:opacity-50"
           >
             {status === "loading" ? "sending..." : ":wq — send"}

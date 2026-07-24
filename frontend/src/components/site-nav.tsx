@@ -9,7 +9,6 @@ const links = [
   { to: "/experience", label: "~/experience" },
   { to: "/education", label: "~/education" },
   { to: "/contact", label: "~/contact" },
-  { to: "/chat", label: "~/ai-assistant" },
 ] as const;
 
 export function SiteNav() {

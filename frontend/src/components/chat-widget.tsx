@@ -17,7 +17,7 @@ export function ChatWidget() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
-      text: "Hi! I'm the AI assistant for this portfolio. Ask me anything!",
+      text: "Hi! I'm an AI assistant trained on Yash Tripathi's background. Ask me anything regarding his experience, skills, or projects!",
       sender: "bot",
     },
   ]);
@@ -32,6 +32,12 @@ export function ChatWidget() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    const handleOpenChat = () => setIsOpen(true);
+    window.addEventListener("open-chat", handleOpenChat);
+    return () => window.removeEventListener("open-chat", handleOpenChat);
+  }, []);
 
   const handleRate = async (messageId: string, queryId: string, rating: number) => {
     setMessages((prev) =>
@@ -169,16 +175,16 @@ export function ChatWidget() {
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
       {isOpen && (
-        <div className="mb-4 flex h-[500px] w-[350px] flex-col overflow-hidden rounded-2xl border border-white/10 bg-black/90 shadow-2xl backdrop-blur-xl sm:w-[400px]">
+        <div className="mb-4 flex h-[500px] w-[350px] flex-col overflow-hidden rounded-2xl border border-border bg-background/95 shadow-2xl backdrop-blur-xl sm:w-[400px]">
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-white/10 bg-white/5 p-4">
+          <div className="flex items-center justify-between border-b border-border bg-card p-4">
             <div className="flex items-center gap-2">
-              <Bot className="h-5 w-5 text-indigo-400" />
-              <h3 className="font-semibold text-white">AI Assistant</h3>
+              <Bot className="h-5 w-5 text-terminal" />
+              <h3 className="font-semibold text-foreground">AI Assistant</h3>
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="rounded-full p-1 text-gray-400 hover:bg-white/10 hover:text-white transition-colors"
+              className="rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
             >
               <X className="h-5 w-5" />
             </button>
@@ -194,20 +200,20 @@ export function ChatWidget() {
                 <div
                   className={`max-w-[85%] rounded-2xl px-4 py-2 text-sm ${
                     msg.sender === "user"
-                      ? "bg-indigo-600 text-white rounded-tr-sm"
-                      : "bg-white/10 text-gray-200 rounded-tl-sm"
+                      ? "bg-terminal text-primary-foreground rounded-tr-sm"
+                      : "bg-muted text-foreground rounded-tl-sm"
                   }`}
                 >
                   {msg.sender === "user" ? (
                     msg.text
                   ) : (
-                    <div className="space-y-2 [&>p]:leading-relaxed [&>ul]:list-disc [&>ul]:pl-4 [&>ol]:list-decimal [&>ol]:pl-4 [&_strong]:font-semibold [&_strong]:text-indigo-300">
+                    <div className="space-y-2 [&>p]:leading-relaxed [&>ul]:list-disc [&>ul]:pl-4 [&>ol]:list-decimal [&>ol]:pl-4 [&_strong]:font-semibold [&_strong]:text-terminal">
                       <ReactMarkdown>{msg.text}</ReactMarkdown>
                       {msg.queryId && msg.isComplete && (
-                        <div className="flex gap-2 mt-2 pt-2 border-t border-white/10">
+                        <div className="flex gap-2 mt-2 pt-2 border-t border-border">
                           <button
                             onClick={() => handleRate(msg.id, msg.queryId!, 1)}
-                            className={`p-1 rounded hover:bg-white/10 transition-colors ${msg.ratingStatus === "up" ? "text-green-400" : "text-gray-400"}`}
+                            className={`p-1 rounded hover:bg-muted transition-colors ${msg.ratingStatus === "up" ? "text-terminal" : "text-muted-foreground"}`}
                             disabled={!!msg.ratingStatus}
                             title="Helpful"
                           >
@@ -215,7 +221,7 @@ export function ChatWidget() {
                           </button>
                           <button
                             onClick={() => handleRate(msg.id, msg.queryId!, -1)}
-                            className={`p-1 rounded hover:bg-white/10 transition-colors ${msg.ratingStatus === "down" ? "text-red-400" : "text-gray-400"}`}
+                            className={`p-1 rounded hover:bg-muted transition-colors ${msg.ratingStatus === "down" ? "text-red-400" : "text-muted-foreground"}`}
                             disabled={!!msg.ratingStatus}
                             title="Not helpful"
                           >
@@ -230,8 +236,8 @@ export function ChatWidget() {
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-white/10 text-gray-200 rounded-2xl rounded-tl-sm px-4 py-3 flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin text-indigo-400" />
+                <div className="bg-muted text-foreground rounded-2xl rounded-tl-sm px-4 py-3 flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin text-terminal" />
                   <span className="text-sm">Thinking...</span>
                 </div>
               </div>
@@ -240,7 +246,7 @@ export function ChatWidget() {
           </div>
 
           {/* Input */}
-          <div className="border-t border-white/10 bg-white/5 p-4">
+          <div className="border-t border-border bg-card p-4">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -253,12 +259,12 @@ export function ChatWidget() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask me anything..."
-                className="flex-1 rounded-full border border-white/10 bg-black/50 px-4 py-2 text-sm text-white placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="flex-1 rounded-full border border-border bg-input px-4 py-2 text-sm text-foreground placeholder-muted-foreground focus:border-terminal focus:outline-none focus:ring-1 focus:ring-terminal"
               />
               <button
                 type="submit"
                 disabled={isLoading || !input.trim()}
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 disabled:hover:bg-indigo-600 transition-colors"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-terminal text-primary-foreground hover:bg-terminal-glow disabled:opacity-50 transition-colors"
               >
                 <Send className="h-4 w-4" />
               </button>
@@ -270,7 +276,7 @@ export function ChatWidget() {
       {/* Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex h-14 w-14 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 hover:scale-105 active:scale-95 transition-all"
+        className="flex h-14 w-14 items-center justify-center rounded-full bg-terminal text-primary-foreground shadow-lg shadow-terminal/20 hover:bg-terminal-glow hover:scale-105 active:scale-95 transition-all"
       >
         {isOpen ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
       </button>

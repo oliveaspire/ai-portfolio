@@ -13,24 +13,24 @@ export const Route = createFileRoute("/education")({
 
 const edu = [
   {
-    school: "Your University",
-    degree: "B.Tech in Computer Science",
-    period: "2019 — 2023",
-    notes: ["GPA: 8.5 / 10", "Coursework: Distributed Systems, ML, DBMS, Algorithms"],
+    school: "Chandigarh Engineering College, Mohali",
+    degree: "Bachelor of Technology – Computer Science Engineering",
+    period: "Sep 2021 – May 2025",
+    notes: [
+      "CGPA: 8.0 / 10.0",
+      "Coursework: Data Structures & Algorithms, Database Management Systems, Operating Systems, Computer Networks, Object-Oriented Programming",
+    ],
   },
   {
-    school: "Your High School",
-    degree: "Senior Secondary — Science (PCM)",
-    period: "2017 — 2019",
-    notes: ["Focus on Math & Physics", "School coding club lead"],
+    school: "Guru Nanak Modern School, Kanpur",
+    degree: "XIIᵗʰ",
+    period: "Apr 2020 - Apr 2021",
+    notes: [
+      "Percentage: 92.4%",
+      "Stream: Science (PCM)",
+      "Subjects: Physics, Chemistry, Mathematics, English, Computer Science",
+    ],
   },
-];
-
-const certs = [
-  "AWS Certified Cloud Practitioner",
-  "Meta Front-End Developer (Coursera)",
-  "Deep Learning Specialization — DeepLearning.AI",
-  "Postgres for Application Developers",
 ];
 
 function Education() {
@@ -58,23 +58,6 @@ function Education() {
                   </li>
                 ))}
               </ul>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <div className="text-terminal mb-3">
-          <span className="text-terminal-dim">$</span> ls ./certifications
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2">
-          {certs.map((c) => (
-            <div
-              key={c}
-              className="rounded-lg border border-border bg-card p-4 text-sm hover:border-terminal transition-colors"
-            >
-              <span className="text-terminal mr-2">▸</span>
-              {c}
             </div>
           ))}
         </div>

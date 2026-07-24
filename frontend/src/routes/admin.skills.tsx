@@ -96,7 +96,7 @@ function ManageSkills() {
           />
           <span className="text-terminal text-sm w-10 text-right">{level}%</span>
         </div>
-        <button 
+        <button
           disabled={createMutation.isPending}
           className="rounded bg-terminal text-primary-foreground px-4 py-2 text-sm font-semibold hover:bg-terminal-glow flex items-center gap-1 disabled:opacity-50"
         >
@@ -108,31 +108,33 @@ function ManageSkills() {
         <ul>
           {isLoading ? (
             <li className="px-4 py-3 text-muted-foreground text-center text-sm">Loading...</li>
-          ) : skills.map((s) => (
-            <li
-              key={s.id}
-              className="px-4 py-3 border-t border-border flex items-center gap-4 hover:bg-background/40"
-            >
-              <div className="w-40">
-                <div className="text-sm font-medium text-foreground">{s.name}</div>
-                <div className="text-[10px] text-terminal-dim">#{s.group}</div>
-              </div>
-              <div className="flex-1 h-2 bg-muted rounded overflow-hidden border border-border">
-                <div
-                  className="h-full bg-terminal transition-all duration-500"
-                  style={{ width: `${s.level}%`, boxShadow: "0 0 12px var(--color-terminal)" }}
-                />
-              </div>
-              <span className="text-terminal text-xs w-10 text-right">{s.level}%</span>
-              <button
-                onClick={() => deleteMutation.mutate(s.id)}
-                disabled={deleteMutation.isPending}
-                className="text-muted-foreground hover:text-destructive p-1 disabled:opacity-50"
+          ) : (
+            skills.map((s) => (
+              <li
+                key={s.id}
+                className="px-4 py-3 border-t border-border flex items-center gap-4 hover:bg-background/40"
               >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </li>
-          ))}
+                <div className="w-40">
+                  <div className="text-sm font-medium text-foreground">{s.name}</div>
+                  <div className="text-[10px] text-terminal-dim">#{s.group}</div>
+                </div>
+                <div className="flex-1 h-2 bg-muted rounded overflow-hidden border border-border">
+                  <div
+                    className="h-full bg-terminal transition-all duration-500"
+                    style={{ width: `${s.level}%`, boxShadow: "0 0 12px var(--color-terminal)" }}
+                  />
+                </div>
+                <span className="text-terminal text-xs w-10 text-right">{s.level}%</span>
+                <button
+                  onClick={() => deleteMutation.mutate(s.id)}
+                  disabled={deleteMutation.isPending}
+                  className="text-muted-foreground hover:text-destructive p-1 disabled:opacity-50"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </li>
+            ))
+          )}
         </ul>
       </div>
     </div>

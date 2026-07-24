@@ -115,12 +115,18 @@ function ManageProjects() {
           <option value="live">live</option>
         </select>
         <div className="flex gap-2">
-          <button 
+          <button
             type="submit"
             disabled={createMutation.isPending || updateMutation.isPending}
             className="rounded bg-terminal text-primary-foreground px-4 py-2 text-sm font-semibold hover:bg-terminal-glow flex items-center gap-1 disabled:opacity-50"
           >
-            {editingId ? "Update" : <><Plus className="w-4 h-4" /> Add</>}
+            {editingId ? (
+              "Update"
+            ) : (
+              <>
+                <Plus className="w-4 h-4" /> Add
+              </>
+            )}
           </button>
           {editingId && (
             <button
@@ -151,46 +157,57 @@ function ManageProjects() {
           </thead>
           <tbody>
             {isLoading ? (
-              <tr><td colSpan={4} className="p-4 text-center text-muted-foreground">Loading...</td></tr>
-            ) : rows.map((r) => (
-              <tr key={r.id} className="border-t border-border hover:bg-background/40">
-                <td className="px-4 py-3 text-terminal font-medium">/{r.name}</td>
-                <td className="px-4 py-3 text-muted-foreground">{r.stack}</td>
-                <td className="px-4 py-3">
-                  <button
-                    onClick={() => updateMutation.mutate({ id: r.id, status: r.status === "live" ? "draft" : "live" })}
-                    disabled={updateMutation.isPending}
-                    className={`text-[10px] px-2 py-0.5 rounded border transition-colors ${
-                      r.status === "live"
-                        ? "border-terminal text-terminal hover:bg-terminal/10"
-                        : "border-border text-muted-foreground hover:bg-border/50"
-                    }`}
-                  >
-                    {r.status}
-                  </button>
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <button 
-                    onClick={() => {
-                      setEditingId(r.id);
-                      setName(r.name);
-                      setStack(r.stack);
-                      setStatus(r.status);
-                    }}
-                    className="text-muted-foreground hover:text-terminal p-1"
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => deleteMutation.mutate(r.id)}
-                    disabled={deleteMutation.isPending}
-                    className="text-muted-foreground hover:text-destructive p-1 disabled:opacity-50"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+              <tr>
+                <td colSpan={4} className="p-4 text-center text-muted-foreground">
+                  Loading...
                 </td>
               </tr>
-            ))}
+            ) : (
+              rows.map((r) => (
+                <tr key={r.id} className="border-t border-border hover:bg-background/40">
+                  <td className="px-4 py-3 text-terminal font-medium">/{r.name}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{r.stack}</td>
+                  <td className="px-4 py-3">
+                    <button
+                      onClick={() =>
+                        updateMutation.mutate({
+                          id: r.id,
+                          status: r.status === "live" ? "draft" : "live",
+                        })
+                      }
+                      disabled={updateMutation.isPending}
+                      className={`text-[10px] px-2 py-0.5 rounded border transition-colors ${
+                        r.status === "live"
+                          ? "border-terminal text-terminal hover:bg-terminal/10"
+                          : "border-border text-muted-foreground hover:bg-border/50"
+                      }`}
+                    >
+                      {r.status}
+                    </button>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <button
+                      onClick={() => {
+                        setEditingId(r.id);
+                        setName(r.name);
+                        setStack(r.stack);
+                        setStatus(r.status);
+                      }}
+                      className="text-muted-foreground hover:text-terminal p-1"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => deleteMutation.mutate(r.id)}
+                      disabled={deleteMutation.isPending}
+                      className="text-muted-foreground hover:text-destructive p-1 disabled:opacity-50"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

@@ -10,16 +10,15 @@ import { ChatModule } from './chat/chat.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
-  imports:
-    [
-      ConfigModule.forRoot({ isGlobal: true }),
-      ProjectsModule,
-      SkillsModule,
-      AuthModule,
-      DocumentsModule,
-      ChatModule,
-      AnalyticsModule
-    ],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    ProjectsModule,
+    SkillsModule,
+    AuthModule,
+    DocumentsModule,
+    ChatModule,
+    AnalyticsModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

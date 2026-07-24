@@ -1,3 +1,4 @@
+import { env } from "../config/env";
 import { createFileRoute } from "@tanstack/react-router";
 import { SectionHeader } from "@/components/terminal";
 import { ExternalLink, Github } from "lucide-react";
@@ -5,19 +6,21 @@ import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/projects")({
   head: () => ({
-    meta: [{ title: "Projects — Yash Tripathi" }, { name: "description", content: "Selected projects built by Yash Tripathi." }],
+    meta: [
+      { title: "Projects — Yash Tripathi" },
+      { name: "description", content: "Selected projects built by Yash Tripathi." },
+    ],
   }),
   component: Projects,
 });
 
 type Project = { id: string; name: string; stack: string; status: "live" | "draft" };
 
-
 function Projects() {
   const { data, isLoading, error } = useQuery<Project[]>({
     queryKey: ["projects"],
     queryFn: async () => {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+      const backendUrl = env.BACKEND_URL;
       const res = await fetch(`${backendUrl}/projects`);
       if (!res.ok) throw new Error("Failed to fetch projects");
       return res.json();
@@ -57,18 +60,20 @@ function Projects() {
                 </a>
               </div>
             </div>
-            <p className="mt-3 text-sm text-muted-foreground flex-1">
-              No description available.
-            </p>
+            <p className="mt-3 text-sm text-muted-foreground flex-1">No description available.</p>
             <div className="mt-4 flex flex-wrap gap-1.5">
-              {p.stack.split(',').map((s) => s.trim()).filter(Boolean).map((s) => (
-                <span
-                  key={s}
-                  className="text-xs px-2 py-0.5 rounded bg-muted text-terminal border border-border"
-                >
-                  {s}
-                </span>
-              ))}
+              {p.stack
+                .split(",")
+                .map((s) => s.trim())
+                .filter(Boolean)
+                .map((s) => (
+                  <span
+                    key={s}
+                    className="text-xs px-2 py-0.5 rounded bg-muted text-terminal border border-border"
+                  >
+                    {s}
+                  </span>
+                ))}
             </div>
           </article>
         ))}

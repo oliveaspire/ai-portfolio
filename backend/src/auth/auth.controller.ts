@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Req, Res, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Req,
+  Res,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
@@ -8,7 +18,7 @@ import { ConfigService } from '@nestjs/config';
 export class AuthController {
   constructor(
     private authService: AuthService,
-    private configService: ConfigService
+    private configService: ConfigService,
   ) {}
 
   @Get('google')
@@ -21,8 +31,11 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
     const tokens = await this.authService.generateJwt(req.user);
-    const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
-    return res.redirect(`${frontendUrl}/auth/callback?token=${tokens.access_token}&refreshToken=${tokens.refresh_token}`);
+    const frontendUrl =
+      this.configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
+    return res.redirect(
+      `${frontendUrl}/auth/callback?token=${tokens.access_token}&refreshToken=${tokens.refresh_token}`,
+    );
   }
 
   @Post('refresh')

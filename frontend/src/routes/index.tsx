@@ -19,8 +19,8 @@ function Home() {
             <span className="caret ml-1" />
           </h1>
           <p className="mt-4 text-lg text-muted-foreground max-w-xl">
-            Associate Engineer · Full-stack developer.
-            <br />I ship clean APIs, thoughtful UIs, and AI-powered features that actually work in production.
+            Associate Engineer · Full-Stack Developer
+            <br />Architecting robust, scalable platforms with <span className="text-foreground font-medium">NestJS</span> and <span className="text-foreground font-medium">React</span>. Specialized in complex <span className="text-terminal">Geospatial (GIS)</span> integrations.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
@@ -30,12 +30,12 @@ function Home() {
             >
               ./view_projects.sh
             </Link>
-            <Link
-              to="/chat"
-              className="rounded border border-terminal/50 text-terminal px-4 py-2 text-sm hover:bg-muted transition-colors"
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent("open-chat"))}
+              className="rounded border border-terminal/50 text-terminal px-4 py-2 text-sm hover:bg-muted transition-colors cursor-pointer"
             >
               ./ask_ai --about=yash
-            </Link>
+            </button>
             <Link
               to="/contact"
               className="rounded border border-border text-foreground px-4 py-2 text-sm hover:border-terminal hover:text-terminal transition-colors"
@@ -46,8 +46,8 @@ function Home() {
 
           <div className="mt-10 grid grid-cols-3 gap-4 max-w-md">
             {[
-              { k: "3+", v: "years shipping" },
-              { k: "20+", v: "projects" },
+              { k: "1+", v: "years shipping" },
+              { k: "2+", v: "enterprise deployments" },
               { k: "∞", v: "commits" },
             ].map((s) => (
               <div key={s.v} className="border border-border rounded p-3">
@@ -66,26 +66,26 @@ function Home() {
                 <span className="text-accent"># Hello, world</span>
               </p>
               <p>
-                I'm a full-stack developer working across{" "}
-                <span className="text-terminal">TypeScript</span>,{" "}
-                <span className="text-terminal">Node.js</span>,{" "}
-                <span className="text-terminal">Python</span>, and{" "}
-                <span className="text-terminal">React</span>.
+                I am a full-stack engineer driven by scalable architecture. I build 
+                primarily with <span className="text-terminal">TypeScript</span>,{" "}
+                <span className="text-terminal">NestJS</span>,{" "}
+                <span className="text-terminal">React</span>, and{" "}
+                <span className="text-terminal">PostgreSQL</span>.
               </p>
               <p>
-                Lately, I've been building <span className="text-terminal">RAG systems</span>,
-                internal AI tooling, and pixel-crafted developer experiences.
+                Recently, I've been focused on <span className="text-terminal">ArcGIS platform integration</span>,
+                scalable enterprise architecture, and <span className="text-terminal">AI integrations (RAG, LangChain)</span>.
               </p>
             </div>
             <Prompt>ls ~/interests</Prompt>
             <div className="pl-4 text-muted-foreground">
-              distributed-systems/ ai-agents/ dx/ open-source/ coffee/
+              clean_architecture/ geospatial_tech/ AI_applications/ cloud_native/
             </div>
             <Prompt>
               <span className="text-foreground">status</span>
               <span className="caret ml-1" />
             </Prompt>
-            <div className="pl-4 text-terminal">● available for interesting problems</div>
+            <div className="pl-4 text-terminal">● building scalable, intelligent web applications</div>
           </div>
         </Terminal>
       </div>
@@ -97,20 +97,34 @@ function Home() {
           { to: "/projects", title: "projects", desc: "things I've built and shipped" },
           { to: "/experience", title: "experience", desc: "career timeline" },
           { to: "/education", title: "education", desc: "degrees and certifications" },
-          { to: "/chat", title: "ai assistant", desc: "chat with my portfolio bot" },
-        ].map((c) => (
-          <Link
-            key={c.to}
-            to={c.to}
-            className="group block rounded-lg border border-border p-5 hover:border-terminal hover:bg-card transition-colors"
-          >
-            <div className="text-terminal-dim text-xs">$ open</div>
-            <div className="mt-1 text-lg font-semibold text-terminal group-hover:text-glow">
-              /{c.title}
-            </div>
-            <div className="mt-1 text-sm text-muted-foreground">{c.desc}</div>
-          </Link>
-        ))}
+          { isAction: true, title: "ai assistant", desc: "chat with my portfolio bot" },
+        ].map((c) => 
+          c.isAction ? (
+            <button
+              key={c.title}
+              onClick={() => window.dispatchEvent(new CustomEvent("open-chat"))}
+              className="text-left group block rounded-lg border border-border p-5 hover:border-terminal hover:bg-card transition-colors cursor-pointer"
+            >
+              <div className="text-terminal-dim text-xs">$ execute</div>
+              <div className="mt-1 text-lg font-semibold text-terminal group-hover:text-glow">
+                /{c.title}
+              </div>
+              <div className="mt-1 text-sm text-muted-foreground">{c.desc}</div>
+            </button>
+          ) : (
+            <Link
+              key={c.to}
+              to={c.to as string}
+              className="group block rounded-lg border border-border p-5 hover:border-terminal hover:bg-card transition-colors"
+            >
+              <div className="text-terminal-dim text-xs">$ open</div>
+              <div className="mt-1 text-lg font-semibold text-terminal group-hover:text-glow">
+                /{c.title}
+              </div>
+              <div className="mt-1 text-sm text-muted-foreground">{c.desc}</div>
+            </Link>
+          )
+        )}
       </div>
     </div>
   );

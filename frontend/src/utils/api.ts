@@ -1,19 +1,20 @@
+import { env } from "../config/env";
 export async function apiFetch(url: string, options: RequestInit = {}) {
-  const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
-  let token = localStorage.getItem("admin_token");
-  
+  const backendUrl = env.BACKEND_URL;
+  const token = typeof window !== "undefined" ? localStorage.getItem("admin_token") : null;
+
   const headers = new Headers(options.headers || {});
   if (token) headers.set("Authorization", `Bearer ${token}`);
-  
+
   let res = await fetch(`${backendUrl}${url}`, { ...options, headers });
-  
-  if (res.status === 401) {
+
+  if (res.status === 401 && typeof window !== "undefined") {
     const refreshToken = localStorage.getItem("admin_refresh_token");
     if (refreshToken) {
       const refreshRes = await fetch(`${backendUrl}/auth/refresh`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ refresh_token: refreshToken })
+        body: JSON.stringify({ refresh_token: refreshToken }),
       });
       if (refreshRes.ok) {
         const data = await refreshRes.json();
@@ -21,7 +22,7 @@ export async function apiFetch(url: string, options: RequestInit = {}) {
         if (data.refresh_token) {
           localStorage.setItem("admin_refresh_token", data.refresh_token);
         }
-        
+
         headers.set("Authorization", `Bearer ${data.access_token}`);
         res = await fetch(`${backendUrl}${url}`, { ...options, headers });
       } else {

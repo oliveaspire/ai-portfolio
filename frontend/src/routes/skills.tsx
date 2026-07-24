@@ -1,16 +1,19 @@
+import { env } from "../config/env";
 import { createFileRoute } from "@tanstack/react-router";
 import { SectionHeader } from "@/components/terminal";
 import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/skills")({
   head: () => ({
-    meta: [{ title: "Skills — Yash Tripathi" }, { name: "description", content: "Stack, tools, and languages Yash works with." }],
+    meta: [
+      { title: "Skills — Yash Tripathi" },
+      { name: "description", content: "Stack, tools, and languages Yash works with." },
+    ],
   }),
   component: Skills,
 });
 
 type Skill = { id: string; name: string; level: number; group: string };
-
 
 function Bar({ n, l }: { n: string; l: number }) {
   return (
@@ -30,21 +33,28 @@ function Bar({ n, l }: { n: string; l: number }) {
 }
 
 function Skills() {
-  const { data: skills = [], isLoading, error } = useQuery<Skill[]>({
+  const {
+    data: skills = [],
+    isLoading,
+    error,
+  } = useQuery<Skill[]>({
     queryKey: ["skills"],
     queryFn: async () => {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+      const backendUrl = env.BACKEND_URL;
       const res = await fetch(`${backendUrl}/skills`);
       if (!res.ok) throw new Error("Failed to fetch skills");
       return res.json();
     },
   });
 
-  const groupedSkills = skills.reduce((acc, skill) => {
-    if (!acc[skill.group]) acc[skill.group] = [];
-    acc[skill.group].push({ n: skill.name, l: skill.level });
-    return acc;
-  }, {} as Record<string, { n: string, l: number }[]>);
+  const groupedSkills = skills.reduce(
+    (acc, skill) => {
+      if (!acc[skill.group]) acc[skill.group] = [];
+      acc[skill.group].push({ n: skill.name, l: skill.level });
+      return acc;
+    },
+    {} as Record<string, { n: string; l: number }[]>,
+  );
 
   const groups = Object.keys(groupedSkills).map((name) => ({
     name,

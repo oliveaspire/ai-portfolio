@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { env } from "../config/env";
 import { FileText, Trash2, Upload } from "lucide-react";
 import { apiFetch } from "../utils/api";
 
@@ -16,7 +17,7 @@ function Documents() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const token = localStorage.getItem("admin_token");
-  const API_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+  const API_URL = env.BACKEND_URL;
 
   useEffect(() => {
     fetchDocuments();
@@ -38,7 +39,7 @@ function Documents() {
 
   async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return;
-    
+
     const formData = new FormData();
     Array.from(files).forEach((file) => {
       formData.append("files", file);
@@ -107,9 +108,7 @@ function Documents() {
         />
         <Upload className="w-8 h-8 mx-auto text-terminal" />
         <div className="mt-3 text-terminal">drop files here</div>
-        <div className="text-xs text-muted-foreground mt-1">
-          PDF, MD, TXT · or click to browse
-        </div>
+        <div className="text-xs text-muted-foreground mt-1">PDF, MD, TXT · or click to browse</div>
       </div>
 
       <div className="terminal-border rounded-lg bg-card overflow-hidden">
@@ -117,7 +116,9 @@ function Documents() {
           ./documents ({docs.length})
         </div>
         {loading ? (
-          <div className="p-4 text-center text-sm text-muted-foreground animate-pulse">loading...</div>
+          <div className="p-4 text-center text-sm text-muted-foreground animate-pulse">
+            loading...
+          </div>
         ) : docs.length === 0 ? (
           <div className="p-4 text-center text-sm text-muted-foreground">no documents found</div>
         ) : (
@@ -130,7 +131,9 @@ function Documents() {
                 <FileText className="w-4 h-4 text-terminal" />
                 <div className="flex-1">
                   <div className="text-sm">{d.originalName}</div>
-                  <div className="text-[11px] text-muted-foreground">{(d.size / 1024).toFixed(1)} KB</div>
+                  <div className="text-[11px] text-muted-foreground">
+                    {(d.size / 1024).toFixed(1)} KB
+                  </div>
                 </div>
                 <span
                   className={`text-[10px] px-2 py-0.5 rounded border ${
@@ -155,4 +158,3 @@ function Documents() {
     </div>
   );
 }
-

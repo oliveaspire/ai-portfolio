@@ -5,7 +5,10 @@ export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
       { title: "About — Yash Tripathi" },
-      { name: "description", content: "About Yash Tripathi — Associate Engineer and full-stack developer." },
+      {
+        name: "description",
+        content: "About Yash Tripathi — Associate Engineer and full-stack developer.",
+      },
     ],
   }),
   component: About,

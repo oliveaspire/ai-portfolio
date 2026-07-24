@@ -34,21 +34,11 @@ export function Prompt({ children }: { children: ReactNode }) {
   );
 }
 
-export function SectionHeader({
-  cmd,
-  title,
-  desc,
-}: {
-  cmd: string;
-  title: string;
-  desc?: string;
-}) {
+export function SectionHeader({ cmd, title, desc }: { cmd: string; title: string; desc?: string }) {
   return (
     <div className="mb-8">
       <Prompt>{cmd}</Prompt>
-      <h1 className="mt-3 text-3xl md:text-4xl font-bold text-terminal text-glow">
-        {title}
-      </h1>
+      <h1 className="mt-3 text-3xl md:text-4xl font-bold text-terminal text-glow">{title}</h1>
       {desc && <p className="mt-2 text-muted-foreground max-w-2xl">{desc}</p>}
     </div>
   );

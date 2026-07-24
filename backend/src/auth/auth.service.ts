@@ -12,19 +12,25 @@ export class AuthService {
   ) {}
 
   async validateUser(details: any) {
-    const allowedEmailsStr = this.configService.get<string>('ALLOWED_ADMIN_EMAILS');
-    
+    const allowedEmailsStr = this.configService.get<string>(
+      'ALLOWED_ADMIN_EMAILS',
+    );
+
     if (allowedEmailsStr) {
-      const allowedEmails = allowedEmailsStr.split(',').map((e) => e.trim().toLowerCase());
+      const allowedEmails = allowedEmailsStr
+        .split(',')
+        .map((e) => e.trim().toLowerCase());
       if (!allowedEmails.includes(details.email.toLowerCase())) {
-        throw new UnauthorizedException('Your email is not authorized to access this admin panel.');
+        throw new UnauthorizedException(
+          'Your email is not authorized to access this admin panel.',
+        );
       }
     }
 
     const user = await this.prisma.user.findUnique({
       where: { email: details.email },
     });
-    
+
     if (user) {
       return this.prisma.user.update({
         where: { email: details.email },
@@ -44,11 +50,20 @@ export class AuthService {
 
   async generateJwt(user: any) {
     const payload = { email: user.email, sub: user.id, role: user.role };
-    const jwtSecret = this.configService.get<string>('JWT_SECRET') || 'defaultSecretChangeMe';
-    const jwtRefreshSecret = this.configService.get<string>('JWT_REFRESH_SECRET') || 'defaultRefreshSecretChangeMe';
+    const jwtSecret =
+      this.configService.get<string>('JWT_SECRET') || 'defaultSecretChangeMe';
+    const jwtRefreshSecret =
+      this.configService.get<string>('JWT_REFRESH_SECRET') ||
+      'defaultRefreshSecretChangeMe';
 
-    const accessToken = this.jwtService.sign(payload, { secret: jwtSecret, expiresIn: '15m' });
-    const refreshToken = this.jwtService.sign(payload, { secret: jwtRefreshSecret, expiresIn: '7d' });
+    const accessToken = this.jwtService.sign(payload, {
+      secret: jwtSecret,
+      expiresIn: '15m',
+    });
+    const refreshToken = this.jwtService.sign(payload, {
+      secret: jwtRefreshSecret,
+      expiresIn: '7d',
+    });
 
     // Store refresh token in DB so we can revoke it on logout
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
@@ -61,9 +76,13 @@ export class AuthService {
 
   async refreshToken(token: string) {
     try {
-      const jwtRefreshSecret = this.configService.get<string>('JWT_REFRESH_SECRET') || 'defaultRefreshSecretChangeMe';
-      const payload = this.jwtService.verify(token, { secret: jwtRefreshSecret });
-      
+      const jwtRefreshSecret =
+        this.configService.get<string>('JWT_REFRESH_SECRET') ||
+        'defaultRefreshSecretChangeMe';
+      const payload = this.jwtService.verify(token, {
+        secret: jwtRefreshSecret,
+      });
+
       // Check token exists in DB (not revoked by logout)
       const storedToken = await this.prisma.refreshToken.findUnique({
         where: { token },
@@ -78,7 +97,7 @@ export class AuthService {
         await this.prisma.refreshToken.delete({ where: { token } });
         throw new UnauthorizedException('Refresh token expired');
       }
-      
+
       const user = await this.prisma.user.findUnique({
         where: { id: payload.sub },
       });

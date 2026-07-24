@@ -2,18 +2,20 @@ import { Controller, Post, Body, Res, Param } from '@nestjs/common';
 import { Response } from 'express';
 import { ChatService } from './chat.service';
 import { PrismaService } from '../prisma.service';
+import { ChatDto, RateQueryDto } from './dto/chat.dto';
 
 @Controller('chat')
 export class ChatController {
   constructor(
     private readonly chatService: ChatService,
-    private readonly prisma: PrismaService
+    private readonly prisma: PrismaService,
   ) {}
 
   @Post()
   async chat(
-    @Body() body: { message: string, history?: { role: string, content: string }[] },
-    @Res() res: Response
+    @Body()
+    body: ChatDto,
+    @Res() res: Response,
   ) {
     try {
       res.setHeader('Content-Type', 'text/event-stream');
@@ -28,12 +30,15 @@ export class ChatController {
       // Send the query ID to the frontend first so it knows what to rate
       res.write(`data: ${JSON.stringify({ queryId: queryRecord.id })}\n\n`);
 
-      const stream = this.chatService.handleChatStream(body.message, body.history);
-      
+      const stream = this.chatService.handleChatStream(
+        body.message,
+        body.history,
+      );
+
       for await (const chunk of stream) {
         res.write(`data: ${JSON.stringify({ text: chunk })}\n\n`);
       }
-      
+
       res.write(`data: [DONE]\n\n`);
       res.end();
     } catch (e: any) {
@@ -44,10 +49,7 @@ export class ChatController {
   }
 
   @Post(':id/rate')
-  async rateQuery(
-    @Param('id') id: string,
-    @Body() body: { rating: number }
-  ) {
+  async rateQuery(@Param('id') id: string, @Body() body: RateQueryDto) {
     const updated = await this.prisma.aiQuery.update({
       where: { id },
       data: { rating: body.rating },

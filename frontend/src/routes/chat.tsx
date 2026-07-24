@@ -6,7 +6,10 @@ export const Route = createFileRoute("/chat")({
   head: () => ({
     meta: [
       { title: "AI Assistant — Yash Tripathi" },
-      { name: "description", content: "Chat with an AI assistant that knows Yash's portfolio, projects, and experience." },
+      {
+        name: "description",
+        content: "Chat with an AI assistant that knows Yash's portfolio, projects, and experience.",
+      },
     ],
   }),
   component: ChatPage,
@@ -100,14 +103,22 @@ function ChatPage() {
     setInput("");
     setLoading(true);
     const chosen = pickReply(q);
-    setTimeout(() => {
-      setMessages((m) => [
-        ...m,
-        { id: crypto.randomUUID(), role: "assistant", content: chosen.reply, sources: chosen.sources },
-      ]);
-      setLoading(false);
-      requestAnimationFrame(() => inputRef.current?.focus());
-    }, 700 + Math.random() * 500);
+    setTimeout(
+      () => {
+        setMessages((m) => [
+          ...m,
+          {
+            id: crypto.randomUUID(),
+            role: "assistant",
+            content: chosen.reply,
+            sources: chosen.sources,
+          },
+        ]);
+        setLoading(false);
+        requestAnimationFrame(() => inputRef.current?.focus());
+      },
+      700 + Math.random() * 500,
+    );
   }
 
   return (
@@ -129,9 +140,7 @@ function ChatPage() {
           <span className="w-3 h-3 rounded-full bg-destructive/70" />
           <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
           <span className="w-3 h-3 rounded-full bg-terminal/80" />
-          <span className="ml-2 text-xs text-muted-foreground">
-            yash@portfolio: ~/ai-assistant
-          </span>
+          <span className="ml-2 text-xs text-muted-foreground">yash@portfolio: ~/ai-assistant</span>
           <span className="ml-auto flex items-center gap-1 text-xs text-terminal">
             <span className="w-1.5 h-1.5 rounded-full bg-terminal animate-pulse" /> online
           </span>
@@ -218,9 +227,7 @@ function MessageBubble({ msg }: { msg: Msg }) {
           <MarkdownLite text={msg.content} />
           {msg.sources && msg.sources.length > 0 && !isUser && (
             <div className="mt-3 pt-3 border-t border-border flex flex-wrap gap-2">
-              <span className="text-[10px] text-terminal-dim uppercase tracking-wide">
-                Source:
-              </span>
+              <span className="text-[10px] text-terminal-dim uppercase tracking-wide">Source:</span>
               {msg.sources.map((s) => (
                 <span
                   key={s.file}
@@ -244,9 +251,18 @@ function TypingBubble() {
         <Bot className="w-4 h-4" />
       </div>
       <div className="inline-flex items-center gap-1.5 rounded-lg px-4 py-3 bg-background/60 border border-border">
-        <span className="w-1.5 h-1.5 rounded-full bg-terminal animate-bounce" style={{ animationDelay: "0ms" }} />
-        <span className="w-1.5 h-1.5 rounded-full bg-terminal animate-bounce" style={{ animationDelay: "120ms" }} />
-        <span className="w-1.5 h-1.5 rounded-full bg-terminal animate-bounce" style={{ animationDelay: "240ms" }} />
+        <span
+          className="w-1.5 h-1.5 rounded-full bg-terminal animate-bounce"
+          style={{ animationDelay: "0ms" }}
+        />
+        <span
+          className="w-1.5 h-1.5 rounded-full bg-terminal animate-bounce"
+          style={{ animationDelay: "120ms" }}
+        />
+        <span
+          className="w-1.5 h-1.5 rounded-full bg-terminal animate-bounce"
+          style={{ animationDelay: "240ms" }}
+        />
         <span className="ml-2 text-xs text-muted-foreground">thinking...</span>
       </div>
     </div>
@@ -264,13 +280,25 @@ function MarkdownLite({ text }: { text: string }) {
     if (idx > last) parts.push(text.slice(last, idx));
     const tok = m[0];
     if (tok.startsWith("**")) {
-      parts.push(<strong key={i++} className="text-terminal font-semibold">{tok.slice(2, -2)}</strong>);
+      parts.push(
+        <strong key={i++} className="text-terminal font-semibold">
+          {tok.slice(2, -2)}
+        </strong>,
+      );
     } else if (tok.startsWith("`")) {
-      parts.push(<code key={i++} className="px-1 py-0.5 rounded bg-muted text-terminal text-xs">{tok.slice(1, -1)}</code>);
+      parts.push(
+        <code key={i++} className="px-1 py-0.5 rounded bg-muted text-terminal text-xs">
+          {tok.slice(1, -1)}
+        </code>,
+      );
     } else {
       const label = tok.slice(1, tok.indexOf("]"));
       const href = tok.slice(tok.indexOf("(") + 1, -1);
-      parts.push(<a key={i++} href={href} className="text-terminal underline hover:text-glow">{label}</a>);
+      parts.push(
+        <a key={i++} href={href} className="text-terminal underline hover:text-glow">
+          {label}
+        </a>,
+      );
     }
     last = idx + tok.length;
   }

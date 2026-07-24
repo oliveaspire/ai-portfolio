@@ -1,3 +1,4 @@
+import { env } from "../config/env";
 import { createFileRoute } from "@tanstack/react-router";
 import { LogIn } from "lucide-react";
 
@@ -7,7 +8,7 @@ export const Route = createFileRoute("/login")({
 
 function Login() {
   const handleLogin = () => {
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+    const backendUrl = env.BACKEND_URL;
     window.location.href = `${backendUrl}/auth/google`;
   };
 

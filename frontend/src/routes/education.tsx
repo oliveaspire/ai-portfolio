@@ -3,7 +3,10 @@ import { SectionHeader } from "@/components/terminal";
 
 export const Route = createFileRoute("/education")({
   head: () => ({
-    meta: [{ title: "Education — Yash Tripathi" }, { name: "description", content: "Education and certifications." }],
+    meta: [
+      { title: "Education — Yash Tripathi" },
+      { name: "description", content: "Education and certifications." },
+    ],
   }),
   component: Education,
 });

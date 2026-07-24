@@ -2,63 +2,25 @@ import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 
+import { Pool } from 'pg';
+
 @Injectable()
-export class PrismaService implements OnModuleInit, OnModuleDestroy {
-  private readonly client: PrismaClient;
-
-  get project(): PrismaClient['project'] {
-    return this.client.project;
-  }
-
-  get skill(): PrismaClient['skill'] {
-    return this.client.skill;
-  }
-
-  get user(): PrismaClient['user'] {
-    return this.client.user;
-  }
-
-  get document(): PrismaClient['document'] {
-    return this.client.document;
-  }
-
-  get refreshToken(): PrismaClient['refreshToken'] {
-    return this.client.refreshToken;
-  }
-
-  get documentChunk(): PrismaClient['documentChunk'] {
-    return this.client.documentChunk;
-  }
-
-  get pageVisit(): PrismaClient['pageVisit'] {
-    return this.client.pageVisit;
-  }
-
-  get aiQuery(): PrismaClient['aiQuery'] {
-    return this.client.aiQuery;
-  }
-
-  get $queryRaw() {
-    return this.client.$queryRaw.bind(this.client);
-  }
-
-  get $executeRaw() {
-    return this.client.$executeRaw.bind(this.client);
-  }
-
+export class PrismaService
+  extends PrismaClient
+  implements OnModuleInit, OnModuleDestroy
+{
   constructor() {
     const connectionString = process.env.DATABASE_URL!;
-    const { Pool } = require('pg');
     const pool = new Pool({ connectionString });
     const adapter = new PrismaPg(pool);
-    this.client = new PrismaClient({ adapter });
+    super({ adapter });
   }
 
   async onModuleInit() {
-    await this.client.$connect();
+    await this.$connect();
   }
 
   async onModuleDestroy() {
-    await this.client.$disconnect();
+    await this.$disconnect();
   }
 }

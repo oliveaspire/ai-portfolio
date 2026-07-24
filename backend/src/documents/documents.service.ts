@@ -4,6 +4,7 @@ import * as fs from 'fs/promises';
 const pdf = require('pdf-parse');
 import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
 import { GoogleGenerativeAIEmbeddings } from '@langchain/google-genai';
+import { Document } from '@prisma/client';
 
 @Injectable()
 export class DocumentsService {
@@ -11,21 +12,23 @@ export class DocumentsService {
 
   async saveFilesMetadata(files: Express.Multer.File[]) {
     const documents = [];
-    
+
     let embeddings: GoogleGenerativeAIEmbeddings | null = null;
     try {
-      embeddings = new GoogleGenerativeAIEmbeddings({ 
+      embeddings = new GoogleGenerativeAIEmbeddings({
         model: 'gemini-embedding-2',
-        apiKey: process.env.GEMINI_API_KEY
+        apiKey: process.env.GEMINI_API_KEY,
       });
     } catch (e) {
-      console.warn("OpenAI API key not found. Skipping embedding generation.");
+      console.warn('OpenAI API key not found. Skipping embedding generation.');
     }
 
     for (const file of files) {
       // Only process PDFs for now
       if (file.mimetype !== 'application/pdf') {
-        console.warn(`Skipping ${file.originalname}: Only PDFs are supported right now.`);
+        console.warn(
+          `Skipping ${file.originalname}: Only PDFs are supported right now.`,
+        );
         continue;
       }
 
@@ -38,20 +41,24 @@ export class DocumentsService {
           path: file.path,
         },
       });
-      
+
       documents.push(doc);
 
       if (embeddings) {
         // Run indexing in background
-        this.indexDocument(doc, file, embeddings).catch(err => 
-          console.error(`Failed to index ${doc.id}:`, err)
+        this.indexDocument(doc, file, embeddings).catch((err) =>
+          console.error(`Failed to index ${doc.id}:`, err),
         );
       }
     }
     return documents;
   }
 
-  private async indexDocument(doc: any, file: Express.Multer.File, embeddings: GoogleGenerativeAIEmbeddings) {
+  private async indexDocument(
+    doc: Document,
+    file: Express.Multer.File,
+    embeddings: GoogleGenerativeAIEmbeddings,
+  ) {
     try {
       // 1. Read and parse PDF
       const dataBuffer = await fs.readFile(file.path);
@@ -59,8 +66,8 @@ export class DocumentsService {
       const text = parsedData.text;
 
       if (!text || text.trim().length === 0) {
-         console.warn(`No text found in PDF ${file.originalname}`);
-         return;
+        console.warn(`No text found in PDF ${file.originalname}`);
+        return;
       }
 
       // 2. Split into chunks
@@ -74,7 +81,7 @@ export class DocumentsService {
       for (const chunk of chunks) {
         const chunkText = chunk.pageContent;
         const [vector] = await embeddings.embedDocuments([chunkText]);
-        
+
         // Convert array to pgvector string format: '[0.1, 0.2, ...]'
         const vectorString = `[${vector.join(',')}]`;
 
@@ -89,7 +96,7 @@ export class DocumentsService {
         where: { id: doc.id },
         data: { indexed: true },
       });
-      
+
       console.log(`Document ${doc.originalName} indexed successfully.`);
     } catch (error) {
       console.error(`Error indexing document ${doc.originalName}:`, error);

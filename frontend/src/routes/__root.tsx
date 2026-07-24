@@ -1,3 +1,4 @@
+import { env } from "../config/env";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -137,14 +138,16 @@ function RootComponent() {
 
   useEffect(() => {
     if (isAdmin) return;
-    
+
     let sessionId = localStorage.getItem("analytics_session_id");
     if (!sessionId) {
-      sessionId = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15);
+      sessionId = crypto.randomUUID
+        ? crypto.randomUUID()
+        : Math.random().toString(36).substring(2, 15);
       localStorage.setItem("analytics_session_id", sessionId);
     }
 
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+    const backendUrl = env.BACKEND_URL;
     fetch(`${backendUrl}/analytics/track`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

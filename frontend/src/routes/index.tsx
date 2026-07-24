@@ -20,7 +20,8 @@ function Home() {
           </h1>
           <p className="mt-4 text-lg text-muted-foreground max-w-xl">
             Associate Engineer · Full-stack developer.
-            <br />I ship clean APIs, thoughtful UIs, and AI-powered features that actually work in production.
+            <br />I ship clean APIs, thoughtful UIs, and AI-powered features that actually work in
+            production.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">

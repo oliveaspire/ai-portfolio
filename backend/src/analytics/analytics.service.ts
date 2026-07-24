@@ -28,20 +28,33 @@ export class AnalyticsService {
       },
     });
 
-    const stats = visits.reduce((acc: Record<string, { views: number; uniqueVisitors: Set<string> }>, visit) => {
-      if (!acc[visit.path]) {
-        acc[visit.path] = { views: 0, uniqueVisitors: new Set<string>() };
-      }
-      acc[visit.path].views += 1;
-      acc[visit.path].uniqueVisitors.add(visit.sessionId);
-      return acc;
-    }, {} as Record<string, { views: number; uniqueVisitors: Set<string> }>);
+    const stats = visits.reduce(
+      (
+        acc: Record<string, { views: number; uniqueVisitors: Set<string> }>,
+        visit,
+      ) => {
+        if (!acc[visit.path]) {
+          acc[visit.path] = { views: 0, uniqueVisitors: new Set<string>() };
+        }
+        acc[visit.path].views += 1;
+        acc[visit.path].uniqueVisitors.add(visit.sessionId);
+        return acc;
+      },
+      {} as Record<string, { views: number; uniqueVisitors: Set<string> }>,
+    );
 
-    const formattedStats = Object.entries(stats).map(([path, data]: [string, { views: number; uniqueVisitors: Set<string> }]) => ({
-      path,
-      views: data.views,
-      uniqueVisitors: data.uniqueVisitors.size,
-    })).sort((a, b) => b.views - a.views);
+    const formattedStats = Object.entries(stats)
+      .map(
+        ([path, data]: [
+          string,
+          { views: number; uniqueVisitors: Set<string> },
+        ]) => ({
+          path,
+          views: data.views,
+          uniqueVisitors: data.uniqueVisitors.size,
+        }),
+      )
+      .sort((a, b) => b.views - a.views);
 
     const totalViews = visits.length;
     const totalUniqueVisitors = new Set(visits.map((v) => v.sessionId)).size;

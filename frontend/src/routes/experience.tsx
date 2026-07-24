@@ -3,7 +3,10 @@ import { SectionHeader } from "@/components/terminal";
 
 export const Route = createFileRoute("/experience")({
   head: () => ({
-    meta: [{ title: "Experience — Yash Tripathi" }, { name: "description", content: "Career timeline of Yash Tripathi." }],
+    meta: [
+      { title: "Experience — Yash Tripathi" },
+      { name: "description", content: "Career timeline of Yash Tripathi." },
+    ],
   }),
   component: Experience,
 });
@@ -80,9 +83,7 @@ function Experience() {
                   </span>
                 ))}
               </div>
-              {i === 0 && (
-                <div className="mt-3 text-xs text-accent">● HEAD → current</div>
-              )}
+              {i === 0 && <div className="mt-3 text-xs text-accent">● HEAD → current</div>}
             </div>
           </div>
         ))}

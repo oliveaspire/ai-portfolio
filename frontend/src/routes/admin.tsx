@@ -1,7 +1,28 @@
-import { createFileRoute, Link, Outlet, redirect, useRouterState, useNavigate } from "@tanstack/react-router";
-import { BarChart3, FileUp, FolderKanban, Home, LayoutDashboard, LogOut, Sparkles } from "lucide-react";
+import { env } from "../config/env";
+import {
+  createFileRoute,
+  Link,
+  Outlet,
+  redirect,
+  useRouterState,
+  useNavigate,
+} from "@tanstack/react-router";
+import {
+  BarChart3,
+  FileUp,
+  FolderKanban,
+  Home,
+  LayoutDashboard,
+  LogOut,
+  Sparkles,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
+
+interface JwtPayload {
+  email?: string;
+  exp?: number;
+}
 
 export const Route = createFileRoute("/admin")({
   // Route-level guard: runs before ANY rendering.
@@ -16,7 +37,7 @@ export const Route = createFileRoute("/admin")({
       throw redirect({ to: "/login", replace: true });
     }
     try {
-      const decoded: any = jwtDecode(token);
+      const decoded = jwtDecode<JwtPayload>(token);
       if (decoded.exp && decoded.exp * 1000 < Date.now()) {
         const hasRefresh = !!localStorage.getItem("admin_refresh_token");
         if (!hasRefresh) {
@@ -24,8 +45,8 @@ export const Route = createFileRoute("/admin")({
           throw redirect({ to: "/login", replace: true });
         }
       }
-    } catch (e: any) {
-      if (e?.isRedirect) throw e; // re-throw router redirects
+    } catch (e: unknown) {
+      if (typeof e === "object" && e !== null && "isRedirect" in e) throw e; // re-throw router redirects
       localStorage.removeItem("admin_token");
       localStorage.removeItem("admin_refresh_token");
       throw redirect({ to: "/login", replace: true });
@@ -60,18 +81,18 @@ function AdminLayout() {
       }
 
       try {
-        let decoded: any = jwtDecode(token);
+        let decoded = jwtDecode<JwtPayload>(token);
 
         // Check if token is expired (adding 10 second buffer)
-        if (decoded.exp && (decoded.exp * 1000 - 10000) < Date.now()) {
+        if (decoded.exp && decoded.exp * 1000 - 10000 < Date.now()) {
           const refreshToken = localStorage.getItem("admin_refresh_token");
           if (!refreshToken) throw new Error("No refresh token available");
 
-          const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+          const backendUrl = env.BACKEND_URL;
           const res = await fetch(`${backendUrl}/auth/refresh`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ refresh_token: refreshToken })
+            body: JSON.stringify({ refresh_token: refreshToken }),
           });
 
           if (!res.ok) throw new Error("Failed to refresh token");
@@ -81,7 +102,7 @@ function AdminLayout() {
           if (data.refresh_token) localStorage.setItem("admin_refresh_token", data.refresh_token);
 
           token = data.access_token;
-          decoded = jwtDecode(token as string);
+          decoded = jwtDecode<JwtPayload>(token as string);
         }
 
         if (decoded && decoded.email) {
@@ -104,7 +125,7 @@ function AdminLayout() {
 
   const handleLogout = async () => {
     const refreshToken = localStorage.getItem("admin_refresh_token");
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+    const backendUrl = env.BACKEND_URL;
 
     // Revoke the refresh token server-side
     if (refreshToken) {
@@ -122,8 +143,7 @@ function AdminLayout() {
     localStorage.removeItem("admin_token");
     localStorage.removeItem("admin_refresh_token");
 
-    // Hard redirect clears the entire browser navigation stack for this SPA
-    window.location.replace("/login");
+    navigate({ to: "/login", replace: true });
   };
 
   if (isLoading) {
@@ -153,10 +173,11 @@ function AdminLayout() {
               <Link
                 key={n.to}
                 to={n.to}
-                className={`flex items-center gap-2 px-3 py-2 rounded text-sm transition-colors ${active
+                className={`flex items-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
+                  active
                     ? "bg-sidebar-accent text-terminal text-glow"
                     : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-terminal"
-                  }`}
+                }`}
               >
                 <Icon className="w-4 h-4" />
                 {n.label}

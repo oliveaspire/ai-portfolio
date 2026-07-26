@@ -22,13 +22,11 @@ export class ChatController {
       res.setHeader('Cache-Control', 'no-cache');
       res.setHeader('Connection', 'keep-alive');
 
-      // Save the user's question to the database
-      const queryRecord = await this.prisma.aiQuery.create({
-        data: { question: body.message },
-      });
+      // Save the user's question to the database via the service
+      const queryId = await this.chatService.saveUserQuery(body.message);
 
       // Send the query ID to the frontend first so it knows what to rate
-      res.write(`data: ${JSON.stringify({ queryId: queryRecord.id })}\n\n`);
+      res.write(`data: ${JSON.stringify({ queryId })}\n\n`);
 
       const stream = this.chatService.handleChatStream(
         body.message,
@@ -50,10 +48,7 @@ export class ChatController {
 
   @Post(':id/rate')
   async rateQuery(@Param('id') id: string, @Body() body: RateQueryDto) {
-    const updated = await this.prisma.aiQuery.update({
-      where: { id },
-      data: { rating: body.rating },
-    });
-    return { success: true, rating: updated.rating };
+    const rating = await this.chatService.rateUserQuery(id, body.rating);
+    return { success: true, rating };
   }
 }

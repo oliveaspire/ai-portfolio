@@ -7,6 +7,7 @@
 ## ✨ Features
 
 - 🤖 AI-powered chatbot using **Google Gemini**
+- ✉️ Autonomous AI Agent with Tool Calling (integrates with **Resend** for email delivery)
 - 📄 Retrieval-Augmented Generation (RAG) with PDF document indexing
 - 🧠 Semantic search using **PostgreSQL + pgvector**
 - ⚡ Real-time streaming responses via **Server-Sent Events (SSE)**
@@ -15,37 +16,6 @@
 - 📊 Analytics for portfolio visits and AI interactions
 - 🛡️ Secure backend with validation, Helmet, and CORS
 - 🚀 Modern SSR frontend built with TanStack Start
-
----
-
-# 🏗️ Architecture
-
-```text
-                +------------------------+
-                |     React Frontend     |
-                |   (TanStack Start)     |
-                +-----------+------------+
-                            |
-                     REST API + SSE
-                            |
-                +-----------v------------+
-                |     NestJS Backend     |
-                +-----------+------------+
-                            |
-        +-------------------+-------------------+
-        |                   |                   |
-        |                   |                   |
- Authentication      Headless CMS        AI Services
-(Google OAuth/JWT)                    (LangChain)
-                                                |
-                                                |
-                                        Google Gemini
-                                                |
-                                                |
-                                      Vector Retrieval
-                                                |
-                                       PostgreSQL + pgvector
-```
 
 ---
 
@@ -102,10 +72,12 @@
      Relevant Context Found
              │
              ▼
-      Google Gemini (LLM)
-             │
-             ▼
-   Streaming AI Response (SSE)
+      Google Gemini (LLM)  ◄────────┐
+             │                      │
+             ├───────────► Tool Call: send_email
+             │                      │
+             ▼                      │
+   Streaming AI Response (SSE) ─────┘
 ```
 
 # ⚙️ Environment Variables
@@ -251,6 +223,8 @@ Ask questions like:
 - Summarize your resume.
 - What projects have you worked on?
 - What backend technologies do you use?
+- Can you send a message to Yash for me?
+- Email Yash and tell him I want to hire him.
 
 The AI retrieves relevant document chunks before generating a response, ensuring answers are grounded in your uploaded knowledge base.
 

@@ -200,4 +200,19 @@ Context:
       }
     }
   }
+
+  async saveUserQuery(question: string): Promise<string> {
+    const queryRecord = await this.prisma.aiQuery.create({
+      data: { question },
+    });
+    return queryRecord.id;
+  }
+
+  async rateUserQuery(id: string, rating: number): Promise<number> {
+    const updated = await this.prisma.aiQuery.update({
+      where: { id },
+      data: { rating },
+    });
+    return updated.rating;
+  }
 }

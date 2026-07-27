@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { DocumentsModule } from './documents/documents.module';
 import { ChatModule } from './chat/chat.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { ContactModule } from './contact/contact.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
     DocumentsModule,
     ChatModule,
     AnalyticsModule,
+    ContactModule,
   ],
   controllers: [AppController],
   providers: [AppService],
